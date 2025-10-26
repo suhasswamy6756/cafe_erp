@@ -1,49 +1,46 @@
 package com.cafe.erp.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Entity
-@Table(name = "baristas")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "baristas")
 public class Baristas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int user_id;
-
     private String username;
     private String full_name;
     private String role;
 
-    private LocalDate hire_date; // DATE type
+    private LocalDate hire_date;
     private String password_hash;
-    private OffsetDateTime last_login; // TIMESTAMP WITH TIME ZONE
+    private OffsetDateTime last_login;
 
+    @JsonProperty("is_active")
     private boolean is_active;
+
     private String phone_number;
 
-    public Baristas(String full_name, LocalDate hire_date, boolean is_active, OffsetDateTime last_login,
-                    String password_hash, String phone_number, String role, int user_id, String username) {
-        this.full_name = full_name;
-        this.hire_date = hire_date;
+    // Custom getter to avoid _active
+    @JsonProperty("is_active")
+    public boolean getIs_active() {
+        return is_active;
+    }
+
+    public void setIs_active(boolean is_active) {
         this.is_active = is_active;
-        this.last_login = last_login;
-        this.password_hash = password_hash;
-        this.phone_number = phone_number;
-        this.role = role;
-        this.user_id = user_id;
-        this.username = username;
     }
 }

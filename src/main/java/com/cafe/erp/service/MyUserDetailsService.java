@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 
 import com.cafe.erp.entity.Baristas;
 import com.cafe.erp.entity.UserPrincipal;
-import com.cafe.erp.repository.UserRepository;
+import com.cafe.erp.repository.BaristaRepository;
 @Service
 public class MyUserDetailsService implements UserDetailsService {
     @Autowired
-    private UserRepository userRepository;
+    private BaristaRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
