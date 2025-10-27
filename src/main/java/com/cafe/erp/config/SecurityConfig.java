@@ -1,5 +1,6 @@
 package com.cafe.erp.config;
 
+import com.cafe.erp.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import com.cafe.erp.service.MyUserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -24,6 +23,9 @@ public class SecurityConfig {
 
     @Autowired
     private MyUserDetailsService userDetailsService;
+
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
 
     @Autowired
     private JWTFilter jwtFilter;
@@ -37,6 +39,7 @@ public class SecurityConfig {
                 // Allow register and login endpoints publicly
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register", "/login").permitAll()
+                        .requestMatchers("/baristas").hasRole("ADMIN")
                         .anyRequest().authenticated())
 
                 // Use basic authentication for now
@@ -45,6 +48,8 @@ public class SecurityConfig {
                 // Stateless session for REST APIs
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

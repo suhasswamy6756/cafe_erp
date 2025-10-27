@@ -7,10 +7,10 @@ import com.cafe.erp.entity.LoginResponse;
 import com.cafe.erp.service.BaristasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 
@@ -18,6 +18,12 @@ public class BaristaController {
 
     @Autowired
     private BaristasService baristasService;
+
+    @GetMapping("/baristas")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<List<Baristas>>> getAllBaristas() {
+        return ResponseEntity.ok(ApiResponse.success("Baristas fetched successfully", baristasService.getAllBaristas()));
+    }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Baristas>> registerBarista(@RequestBody Baristas barista) {

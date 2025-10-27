@@ -13,7 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Service
 public class BaristasService {
@@ -22,7 +24,7 @@ public class BaristasService {
     private BaristaRepository baristasRepository;
 
     @Autowired
-    private BaristaTokenRepository baristaTokenRepository;
+    private BaristaTokenRepository tokenRepository;
 
     @Autowired
     private JWTService jwtService;
@@ -31,6 +33,10 @@ public class BaristasService {
     private AuthenticationManager authManager;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public List<Baristas> getAllBaristas() {
+        return baristasRepository.findAll();
+    }
 
     // ✅ Register a new barista
     public Baristas registerBarista(Baristas barista) {
@@ -47,39 +53,45 @@ public class BaristasService {
                 )
         );
 
-        if (authentication.isAuthenticated()) {
-            Baristas barista = baristasRepository.findByUsername(loginRequest.getUsername());
-
-
-            // ✅ Update last login timestamp
-            barista.setLast_login(ZonedDateTime.now().toOffsetDateTime());
-            baristasRepository.save(barista);
-
-            // ✅ Generate JWT
-            String token = jwtService.generateToken(barista.getUsername());
-
-            BaristaToken baristaToken = BaristaToken.builder()
-                    .token(token)
-                    .barista(barista)
-                    .created_at(ZonedDateTime.now().toOffsetDateTime())
-                    .updated_at(ZonedDateTime.now().toOffsetDateTime())
-                    .created_by(barista.getUsername())
-                    .build();
-
-            baristaTokenRepository.save(baristaToken);
-
-            // ✅ Return both token and barista
-            return new LoginResponse(token, barista);
-        } else {
-            throw new RuntimeException("Login failed: Invalid credentials.");
+        if (!authentication.isAuthenticated()) {
+            throw new RuntimeException("Invalid credentials");
         }
+
+        // ✅ Get the user
+        Baristas barista = baristasRepository.findByUsername(loginRequest.getUsername());
+
+        // ✅ Revoke all old tokens
+        List<BaristaToken> oldTokens = tokenRepository.findAllByBaristaAndRevokedFalse(barista);
+        for (BaristaToken t : oldTokens) {
+            t.setRevoked(true);
+            t.setExpired(true);
+        }
+        tokenRepository.saveAll(oldTokens);
+
+        // ✅ Generate new JWT
+        String jwt = jwtService.generateToken(barista.getUsername());
+
+        // ✅ Save new token in DB
+        BaristaToken newToken = new BaristaToken();
+        newToken.setToken(jwt);
+        newToken.setBarista(barista);
+        newToken.setRevoked(false);
+        newToken.setExpired(false);
+        tokenRepository.save(newToken);
+
+        // ✅ Update last login
+        barista.setLast_login(OffsetDateTime.now());
+        baristasRepository.save(barista);
+
+        return new LoginResponse(jwt, barista);
     }
 
+
     public void logoutBarista(String token) {
-        BaristaToken baristaToken = baristaTokenRepository.findByToken(token);
+        BaristaToken baristaToken = tokenRepository.findByToken(token);
         baristaToken.setExpired(true);
         baristaToken.setRevoked(true);
         baristaToken.setRevoked_at(ZonedDateTime.now().toOffsetDateTime());
-        baristaTokenRepository.save(baristaToken);
+        tokenRepository.save(baristaToken);
     }
 }
