@@ -1,6 +1,6 @@
-package com.cafe.erp.config;
+package com.cafe.erp.common.config;
 
-import com.cafe.erp.service.MyUserDetailsService;
+import com.cafe.erp.auth.service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,11 +1,11 @@
-package com.cafe.erp.service;
+package com.cafe.erp.auth.service;
 
-import com.cafe.erp.entity.BaristaToken;
-import com.cafe.erp.entity.Baristas;
-import com.cafe.erp.entity.LoginRequest;
-import com.cafe.erp.entity.LoginResponse;
-import com.cafe.erp.repository.BaristaRepository;
-import com.cafe.erp.repository.BaristaTokenRepository;
+import com.cafe.erp.auth.entity.BaristaToken;
+import com.cafe.erp.auth.entity.Baristas;
+import com.cafe.erp.auth.entity.LoginRequest;
+import com.cafe.erp.auth.entity.LoginResponse;
+import com.cafe.erp.auth.repository.BaristaRepository;
+import com.cafe.erp.auth.repository.BaristaTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -1,6 +1,6 @@
-package com.cafe.erp.config;
+package com.cafe.erp.common.config;
 
-import com.cafe.erp.entity.ApiResponse;
+import com.cafe.erp.common.model.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.cafe.erp.entity;
+package com.cafe.erp.common.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +15,10 @@ public class ApiResponse<T> {
     private String message;
     private T data;
 
-    public static <T> ApiResponse<T> success(String message, T data) {
+    public static <T> ApiResponse<T> success(String message, T data, int code) {
         return ApiResponse.<T>builder()
                 .status("success")
-                .code(200)
+                .code(code)
                 .message(message)
                 .data(data)
                 .build();

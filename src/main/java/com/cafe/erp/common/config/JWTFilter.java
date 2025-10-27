@@ -1,9 +1,9 @@
-package com.cafe.erp.config;
+package com.cafe.erp.common.config;
 
-import com.cafe.erp.entity.BaristaToken;
-import com.cafe.erp.repository.BaristaTokenRepository;
-import com.cafe.erp.service.JWTService;
-import com.cafe.erp.service.MyUserDetailsService;
+import com.cafe.erp.auth.entity.BaristaToken;
+import com.cafe.erp.auth.repository.BaristaTokenRepository;
+import com.cafe.erp.auth.service.JWTService;
+import com.cafe.erp.auth.service.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,4 +1,4 @@
-package com.cafe.erp.entity;
+package com.cafe.erp.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;

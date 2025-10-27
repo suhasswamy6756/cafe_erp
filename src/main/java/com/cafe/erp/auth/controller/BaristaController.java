@@ -1,10 +1,10 @@
-package com.cafe.erp.controller;
+package com.cafe.erp.auth.controller;
 
-import com.cafe.erp.entity.ApiResponse;
-import com.cafe.erp.entity.Baristas;
-import com.cafe.erp.entity.LoginRequest;
-import com.cafe.erp.entity.LoginResponse;
-import com.cafe.erp.service.BaristasService;
+import com.cafe.erp.common.model.ApiResponse;
+import com.cafe.erp.auth.entity.Baristas;
+import com.cafe.erp.auth.entity.LoginRequest;
+import com.cafe.erp.auth.entity.LoginResponse;
+import com.cafe.erp.auth.service.BaristasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,20 +22,20 @@ public class BaristaController {
     @GetMapping("/baristas")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<Baristas>>> getAllBaristas() {
-        return ResponseEntity.ok(ApiResponse.success("Baristas fetched successfully", baristasService.getAllBaristas()));
+        return ResponseEntity.ok(ApiResponse.success("Baristas fetched successfully", baristasService.getAllBaristas(), 200));
     }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Baristas>> registerBarista(@RequestBody Baristas barista) {
         // Registration logic here
 //        return baristasService.registerBarista(barista);
-        return ResponseEntity.ok(ApiResponse.success("Barista registered successfully", baristasService.registerBarista(barista)));
+        return ResponseEntity.ok(ApiResponse.success("Barista registered successfully", baristasService.registerBarista(barista), 201));
     }
 
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> loginBarista(@RequestBody LoginRequest barista) {
-        return ResponseEntity.ok(ApiResponse.success("Login successful", baristasService.loginBarista(barista)));
+        return ResponseEntity.ok(ApiResponse.success("Login successful", baristasService.loginBarista(barista), 200));
     }
 
     @PostMapping("/logout")
@@ -51,7 +51,7 @@ public class BaristaController {
 
         baristasService.logoutBarista(token);
 
-        return ResponseEntity.ok(ApiResponse.success("Logout successful", token));
+        return ResponseEntity.ok(ApiResponse.success("Logout successful", token, 200));
     }
 
 

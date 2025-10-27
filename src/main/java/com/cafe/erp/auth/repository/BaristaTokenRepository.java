@@ -1,12 +1,11 @@
-package com.cafe.erp.repository;
+package com.cafe.erp.auth.repository;
 
-import com.cafe.erp.entity.BaristaToken;
-import com.cafe.erp.entity.Baristas;
+import com.cafe.erp.auth.entity.BaristaToken;
+import com.cafe.erp.auth.entity.Baristas;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface BaristaTokenRepository extends JpaRepository<BaristaToken, Long> {

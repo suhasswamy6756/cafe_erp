@@ -1,4 +1,4 @@
-package com.cafe.erp.entity;
+package com.cafe.erp.auth.entity;
 
 import java.util.Collection;
 import java.util.List;
