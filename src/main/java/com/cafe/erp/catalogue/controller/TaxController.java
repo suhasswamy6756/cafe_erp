@@ -38,6 +38,7 @@ public class TaxController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Tax>> deleteTax(@PathVariable Long id) {
+        taxService.deleteTax(id);
         return ResponseEntity.ok(ApiResponse.success("Tax deleted successfully", null, 200));
     }
 }
