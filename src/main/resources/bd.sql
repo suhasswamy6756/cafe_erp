@@ -57,11 +57,17 @@ CREATE TABLE modifiers (
 -- =====================================================
 -- 4️⃣ TAX TABLE
 -- =====================================================
-CREATE TABLE taxes (
+-- Step 4: Create tax table
+CREATE TABLE IF NOT EXISTS public.tax
+(
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    percentage DECIMAL(5,2) NOT NULL,
-    inclusive BOOLEAN DEFAULT FALSE,
+    tax_type VARCHAR(100) NOT NULL,
+    tax_code VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    applicable_modes VARCHAR(255), -- e.g., 'Online,Offline' or JSON
+    applicable_on VARCHAR(100), -- e.g., 'Product,Service'
+    tax_percentage DECIMAL(5,2) NOT NULL,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(100),
