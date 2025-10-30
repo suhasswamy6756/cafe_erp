@@ -1,5 +1,6 @@
 package com.cafe.erp.catalogue.controller;
 
+import com.cafe.erp.catalogue.dto.ModifierDTO;
 import com.cafe.erp.catalogue.model.Modifier;
 import com.cafe.erp.catalogue.service.ModifierService;
 import com.cafe.erp.common.model.ApiResponse;
@@ -28,8 +29,18 @@ public class ModifierController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Modifier>> createModifier(@RequestBody Modifier modifier) {
-        return ResponseEntity.ok(ApiResponse.success("Modifier created successfully", modifierService.createModifier(modifier), 201));
+    public ResponseEntity<ApiResponse<Modifier>> createModifier(@RequestBody ModifierDTO modifier) {
+        Modifier modifier1 = Modifier.builder()
+                .title(modifier.getTitle())
+                .shortName(modifier.getShortName())
+                .foodType(modifier.getFoodType())
+                .defaultSalePrice(modifier.getDefaultSalePrice())
+                .sortOrder(modifier.getSortOrder())
+                .isDefault(modifier.getIsDefault())
+                .active(modifier.getActive())
+                .modifierGroupId(modifier.getModifierGroupId())
+                .build();
+        return ResponseEntity.ok(ApiResponse.success("Modifier created successfully", modifierService.createModifier(modifier1), 201));
     }
 
     @PutMapping("/{id}")

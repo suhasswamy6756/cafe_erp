@@ -38,7 +38,7 @@ public class ModifierServiceImpl  implements ModifierService {
                     modifier1.setTitle(modifier.getTitle());
                     modifier1.setDefaultSalePrice(modifier.getDefaultSalePrice());
                     modifier1.setIsDeleted(modifier.getIsDeleted());
-                    modifier1.setModifierGroup(modifier.getModifierGroup());
+                    modifier1.setModifierGroupId(modifier.getModifierGroupId());
                     modifier1.setFoodType(modifier.getFoodType());
 
                     modifier1.setUpdatedBy(modifier.getUpdatedBy());

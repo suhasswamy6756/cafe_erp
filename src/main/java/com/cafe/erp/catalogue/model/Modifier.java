@@ -17,9 +17,13 @@ public class Modifier extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relationship with ModifierGroup
+    // ✅ Keep the actual foreign key column
+    @Column(name = "modifier_group_id", nullable = false)
+    private Long modifierGroupId;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "modifier_group_id", referencedColumnName = "id")
+    @JoinColumn(name = "modifier_group_id", insertable = false, updatable = false)
     private ModifierGroup modifierGroup;
 
     @Column(name = "title", nullable = false, length = 150)
@@ -31,7 +35,7 @@ public class Modifier extends BaseEntity {
     @Column(name = "food_type", length = 50)
     private String foodType; // Veg, NonVeg, Egg
 
-    @Column(name = "default_sale_price", precision = 10, scale = 2)
+    @Column(name = "default_sale_price")
     private Double defaultSalePrice = 0.0;
 
     @Column(name = "sort_order", nullable = false)
@@ -40,7 +44,6 @@ public class Modifier extends BaseEntity {
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault = false;
 
-    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 

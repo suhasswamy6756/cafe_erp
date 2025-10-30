@@ -38,7 +38,7 @@ public class Tax extends BaseEntity {
     @Column(name = "applicable_on", length = 100)
     private String applicableOn;
 
-    @Column(name = "tax_percentage", precision = 5, scale = 2, nullable = false)
+    @Column(name = "tax_percentage", nullable = false)
     private BigDecimal taxPercentage;
 
     @Column(name = "active", nullable = false)

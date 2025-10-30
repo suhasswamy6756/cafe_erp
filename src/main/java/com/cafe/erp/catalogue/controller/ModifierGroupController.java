@@ -1,5 +1,6 @@
 package com.cafe.erp.catalogue.controller;
 
+import com.cafe.erp.catalogue.dto.ModifierGroupDTO;
 import com.cafe.erp.catalogue.model.ModifierGroup;
 import com.cafe.erp.catalogue.service.ModifierGroupService;
 import com.cafe.erp.common.model.ApiResponse;
@@ -22,8 +23,8 @@ public class ModifierGroupController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ModifierGroup>> getModifierGroupById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("ModifierGroup fetched successfully", modifierGroupService.getModifierGroupById(id), 200));
+    public ResponseEntity<ApiResponse<ModifierGroupDTO>> getModifierGroupById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("ModifierGroup fetched successfully", modifierGroupService.getModifierGroupWithModifiers(id), 200));
     }
 
     @PostMapping

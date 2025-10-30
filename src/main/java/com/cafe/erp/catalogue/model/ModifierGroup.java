@@ -1,8 +1,11 @@
 package com.cafe.erp.catalogue.model;
 
 import com.cafe.erp.common.model.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "modifier_groups")
@@ -10,7 +13,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+//@Builder
 public class ModifierGroup extends BaseEntity {
 
     @Id
@@ -35,10 +38,14 @@ public class ModifierGroup extends BaseEntity {
     @Column(name = "sort_order", nullable = false)
     private Integer sortOrder = 0;
 
-    @Builder.Default
+//    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
     @Column(name = "active", nullable = false)
     private Boolean active = true;
+
+    @OneToMany(mappedBy = "modifierGroup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Modifier> modifiers;
 }

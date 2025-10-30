@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+//@Builder
 public class Discount extends BaseEntity {
 
     @Id
@@ -27,21 +27,21 @@ public class Discount extends BaseEntity {
     @Column(name = "discount_type", nullable = false, length = 50)
     private String discountType; // e.g., Percentage, Flat
 
-    @Column(name = "discount_value", nullable = false, precision = 10, scale = 2)
+    @Column(name = "discount_value", nullable = false)
     private BigDecimal discountValue;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "maximum_discount_value", precision = 10, scale = 2)
+    @Column(name = "maximum_discount_value")
     private BigDecimal maximumDiscountValue;
 
-    @Column(name = "minimum_bill_subtotal", precision = 10, scale = 2)
+    @Column(name = "minimum_bill_subtotal")
     private BigDecimal minimumBillSubtotal = BigDecimal.ZERO;
 
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
-    @Builder.Default
+//    @Builder.Default
     private Boolean isDeleted = false;
 }
