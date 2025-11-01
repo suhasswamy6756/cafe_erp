@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-
+@RequestMapping("/api")
 public class BaristaController {
 
     @Autowired
     private BaristasService baristasService;
 
     @GetMapping("/baristas")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<List<Baristas>>> getAllBaristas() {
         return ResponseEntity.ok(ApiResponse.success("Baristas fetched successfully", baristasService.getAllBaristas(), 200));
     }
@@ -51,7 +51,7 @@ public class BaristaController {
 
         baristasService.logoutBarista(token);
 
-        return ResponseEntity.ok(ApiResponse.success("Logout successful", token, 200));
+        return ResponseEntity.ok(ApiResponse.success("Logout successful", null, 200));
     }
 
 
