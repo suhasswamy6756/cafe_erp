@@ -1,10 +1,13 @@
 package com.cafe.erp.auth.repository;
 
 import com.cafe.erp.auth.entity.Baristas;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface BaristaRepository extends JpaRepository<Baristas, Long> {
@@ -19,4 +22,8 @@ public interface BaristaRepository extends JpaRepository<Baristas, Long> {
                 WHERE b.username = :username
             """)
     Baristas findByUsernameWithRoles(@Param("username") String username);
+
+    @EntityGraph(attributePaths = {"roleMappings", "roleMappings.role"})
+    @Query("SELECT b FROM Baristas b")
+    List<Baristas> findAllWithRoles();
 }

@@ -41,24 +41,37 @@ public class BaristasService {
     // Fetch all baristas
     // ------------------------------------------------------------------------
     @Transactional(readOnly = true)
-    public List<Baristas> getAllBaristas() {
-        List<Baristas> baristas = baristasRepository.findAll();
+    public List<BaristaResponseDTO> getAllBaristas() {
+        List<Baristas> baristas = baristasRepository.findAllWithRoles();
 
-        // Preload roles for each barista
-        baristas.forEach(b -> {
-            // Filter out revoked or deleted roles
-            Set<UserRolesMapping> activeMappings = b.getRoleMappings().stream()
+        return baristas.stream().map(barista -> {
+            // Filter valid roles and flatten
+            Set<RoleResponseDTO> roles = barista.getRoleMappings().stream()
                     .filter(rm -> rm.getRevokedAt() == null && !rm.isDeleted())
+                    .map(UserRolesMapping::getRole)
+                    .filter(Roles::isActive)
+                    .map(role -> new RoleResponseDTO(
+                            role.getRoleId(),
+                            role.getRoleName(),
+                            role.getRoleDescription(),
+                            role.isActive()
+                    ))
                     .collect(Collectors.toSet());
-            b.setRoleMappings(activeMappings);
-        });
 
-        return baristas;
+            // Return unified DTO
+            return new BaristaResponseDTO(
+                    barista.getUserId(),
+                    barista.getUsername(),
+                    barista.getFullName(),
+                    roles
+            );
+        }).collect(Collectors.toList());
     }
 
-    // ------------------------------------------------------------------------
-    // Register a new barista
-    // ------------------------------------------------------------------------
+
+
+
+
     public Baristas registerBarista(Baristas barista) {
         barista.setPasswordHash(passwordEncoder.encode(barista.getPasswordHash()));
         return baristasRepository.save(barista);

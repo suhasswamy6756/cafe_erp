@@ -1,5 +1,6 @@
 package com.cafe.erp.auth.controller;
 
+import com.cafe.erp.auth.DTO.BaristaResponseDTO;
 import com.cafe.erp.auth.DTO.LoginRequest;
 import com.cafe.erp.auth.DTO.LoginResponse;
 import com.cafe.erp.auth.entity.Baristas;
@@ -21,7 +22,7 @@ public class BaristaController {
 
     @GetMapping("/baristas")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<List<Baristas>>> getAllBaristas() {
+    public ResponseEntity<ApiResponse<List<BaristaResponseDTO>>> getAllBaristas() {
         return ResponseEntity.ok(ApiResponse.success(
                 "Baristas fetched successfully",
                 baristasService.getAllBaristas(),
