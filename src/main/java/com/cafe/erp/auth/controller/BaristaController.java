@@ -26,6 +26,7 @@ public class BaristaController {
     }
 
     @PostMapping("/register")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN', 'ROLE_CHEF')")
     public ResponseEntity<ApiResponse<Baristas>> registerBarista(@RequestBody Baristas barista) {
         // Registration logic here
 //        return baristasService.registerBarista(barista);
