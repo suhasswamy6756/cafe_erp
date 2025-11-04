@@ -1,5 +1,6 @@
 package com.cafe.erp.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,12 +8,13 @@ import java.time.OffsetDateTime;
 
 @Data
 @Entity
-@Table(name = "barista_tokens")
+@Table(name = "cafe_user_tokens")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class BaristaToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

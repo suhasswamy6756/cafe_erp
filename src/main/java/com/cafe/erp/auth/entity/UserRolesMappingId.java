@@ -1,7 +1,18 @@
 package com.cafe.erp.auth.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 
-// Defines the composite key
-public record UserRolesMappingId(Long userId, Long roleId) implements Serializable {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+
+public class UserRolesMappingId implements Serializable {
+    private Long userId;
+    private Long roleId;
 }

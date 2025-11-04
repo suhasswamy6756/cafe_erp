@@ -1,11 +1,13 @@
 package com.cafe.erp.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -17,7 +19,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "baristas")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Table(name = "cafe_users")
 public class Baristas {
 
     @Id
@@ -32,13 +35,13 @@ public class Baristas {
     private String fullName;
 
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Roles> roles = new HashSet<>();
+    // ✅ relationship to mapping table (no @Where)
+    @OneToMany(mappedBy = "barista", fetch = FetchType.LAZY)
+    private Set<UserRolesMapping> roleMappings = new HashSet<>();
+
+    // ✅ transient field for returning active roles in API
+    @Transient
+    private Set<Roles> activeRoles = new HashSet<>();
 
 
     @Column(name = "hire_date")
@@ -56,4 +59,15 @@ public class Baristas {
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
+
+    public Set<Roles> getActiveRoles() {
+        if (roleMappings == null) return Set.of();
+
+        return roleMappings.stream()
+                .filter(mapping -> !mapping.isDeleted() && mapping.getRevokedAt() == null)
+                .map(UserRolesMapping::getRole)
+                .filter(Roles::isActive)
+                .collect(java.util.stream.Collectors.toSet());
+    }
+
 }

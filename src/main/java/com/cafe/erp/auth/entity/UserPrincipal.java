@@ -1,10 +1,8 @@
 package com.cafe.erp.auth.entity;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,11 +11,11 @@ public record UserPrincipal(Baristas barista) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<Roles> roles = barista.getActiveRoles();  // now populated via helper
+        System.out.println("Roles: " + roles);
 
-        Set<Roles> roles = barista.getRoles();
-        // Normalize role to uppercase and add ROLE_ prefix
         if (roles == null || roles.isEmpty()) {
-            return Set.of(); // no roles assigned
+            return Set.of();
         }
 
         return roles.stream()
@@ -49,9 +47,9 @@ public record UserPrincipal(Baristas barista) implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-//
-//    @Override
-//    public boolean isEnabled() {
-//        return barista.is_active();
-//    }
+
+    @Override
+    public boolean isEnabled() {
+        return barista.isActive();
+    }
 }

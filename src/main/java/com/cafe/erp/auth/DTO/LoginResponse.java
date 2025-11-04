@@ -11,5 +11,5 @@ import lombok.*;
 public class LoginResponse {
     private String accessToken;
     private String refreshToken;
-    private Baristas barista;
+    private BaristaResponseDTO barista;
 }

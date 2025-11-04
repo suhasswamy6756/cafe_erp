@@ -1,10 +1,12 @@
 package com.cafe.erp.auth.controller;
 
+import com.cafe.erp.auth.entity.Roles;
 import com.cafe.erp.auth.entity.UserRolesMapping;
 import com.cafe.erp.auth.service.UserRoleMappingService;
 import com.cafe.erp.common.model.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +19,7 @@ public class UserRoleMappingController {
     private final UserRoleMappingService service;
 
     @PostMapping("/assign")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<UserRolesMapping>> assignRole(
             @RequestParam Long userId,
             @RequestParam Long roleId,
@@ -25,6 +28,7 @@ public class UserRoleMappingController {
     }
 
     @PostMapping("/revoke")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<String>> revokeRole(
             @RequestParam Long userId,
             @RequestParam Long roleId,

@@ -1,10 +1,10 @@
 package com.cafe.erp.auth.controller;
 
-import com.cafe.erp.common.model.ApiResponse;
-import com.cafe.erp.auth.entity.Baristas;
 import com.cafe.erp.auth.DTO.LoginRequest;
 import com.cafe.erp.auth.DTO.LoginResponse;
+import com.cafe.erp.auth.entity.Baristas;
 import com.cafe.erp.auth.service.BaristasService;
+import com.cafe.erp.common.model.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,14 +22,17 @@ public class BaristaController {
     @GetMapping("/baristas")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<List<Baristas>>> getAllBaristas() {
-        return ResponseEntity.ok(ApiResponse.success("Baristas fetched successfully", baristasService.getAllBaristas(), 200));
+        return ResponseEntity.ok(ApiResponse.success(
+                "Baristas fetched successfully",
+                baristasService.getAllBaristas(),
+                200
+        ));
     }
 
+
     @PostMapping("/register")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN', 'ROLE_CHEF')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<Baristas>> registerBarista(@RequestBody Baristas barista) {
-        // Registration logic here
-//        return baristasService.registerBarista(barista);
         return ResponseEntity.ok(ApiResponse.success("Barista registered successfully", baristasService.registerBarista(barista), 201));
     }
 
@@ -45,7 +48,7 @@ public class BaristaController {
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400 ,"Invalid Authorization header" ));
+                    .body(ApiResponse.error(400, "Invalid Authorization header"));
         }
 
         String token = authorizationHeader.replace("Bearer ", "").trim();
