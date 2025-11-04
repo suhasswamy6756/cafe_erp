@@ -1,10 +1,7 @@
-package com.cafe.erp.entity;
+package com.cafe.erp.auth.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 
@@ -14,6 +11,8 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class BaristaToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +22,8 @@ public class BaristaToken {
 
     private boolean revoked;
     private boolean expired;
+
+    private String token_type;
 
     @ManyToOne
     @JoinColumn(name = "barista_id", nullable = false)

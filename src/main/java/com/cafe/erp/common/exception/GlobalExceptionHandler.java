@@ -1,6 +1,6 @@
-package com.cafe.erp.exception;
+package com.cafe.erp.common.exception;
 
-import com.cafe.erp.entity.ApiResponse;
+import com.cafe.erp.common.model.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

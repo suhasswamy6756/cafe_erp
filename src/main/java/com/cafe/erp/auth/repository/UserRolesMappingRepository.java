@@ -1,0 +1,14 @@
+package com.cafe.erp.auth.repository;
+
+import com.cafe.erp.auth.entity.UserRolesMapping;
+import com.cafe.erp.auth.entity.UserRolesMappingId;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+
+@Repository
+public interface UserRolesMappingRepository extends JpaRepository<UserRolesMapping, UserRolesMappingId> {
+    List<UserRolesMapping> findByUserIdAndIsDeletedFalse(Long userId);
+}

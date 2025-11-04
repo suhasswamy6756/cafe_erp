@@ -1,4 +1,4 @@
-package com.cafe.erp.entity;
+package com.cafe.erp.auth.DTO;
 
 import lombok.Data;
 
