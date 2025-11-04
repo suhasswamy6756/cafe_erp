@@ -23,6 +23,8 @@ public class BaristaToken {
     private boolean revoked;
     private boolean expired;
 
+    private String token_type;
+
     @ManyToOne
     @JoinColumn(name = "barista_id", nullable = false)
     private Baristas barista;

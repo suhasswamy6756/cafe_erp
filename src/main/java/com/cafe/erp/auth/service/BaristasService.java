@@ -1,9 +1,8 @@
 package com.cafe.erp.auth.service;
 
-import com.cafe.erp.auth.entity.BaristaToken;
-import com.cafe.erp.auth.entity.Baristas;
-import com.cafe.erp.auth.entity.LoginRequest;
-import com.cafe.erp.auth.entity.LoginResponse;
+import com.cafe.erp.auth.DTO.LoginRequest;
+import com.cafe.erp.auth.DTO.LoginResponse;
+import com.cafe.erp.auth.entity.*;
 import com.cafe.erp.auth.repository.BaristaRepository;
 import com.cafe.erp.auth.repository.BaristaTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,13 +37,13 @@ public class BaristasService {
         return baristasRepository.findAll();
     }
 
-    // ✅ Register a new barista
+    // Register a new barista
     public Baristas registerBarista(Baristas barista) {
         barista.setPassword_hash(passwordEncoder.encode(barista.getPassword_hash()));
         return baristasRepository.save(barista);
     }
 
-    // ✅ Login logic (returns token + barista info)
+    //  Login logic (returns token + barista info)
     public LoginResponse loginBarista(LoginRequest loginRequest) {
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -57,10 +56,10 @@ public class BaristasService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        // ✅ Get the user
+        // Get the user
         Baristas barista = baristasRepository.findByUsername(loginRequest.getUsername());
 
-        // ✅ Revoke all old tokens
+        // Revoke all old tokens
         List<BaristaToken> oldTokens = tokenRepository.findAllByBaristaAndRevokedFalse(barista);
         for (BaristaToken t : oldTokens) {
             t.setRevoked(true);
@@ -68,23 +67,42 @@ public class BaristasService {
         }
         tokenRepository.saveAll(oldTokens);
 
-        // ✅ Generate new JWT
-        String jwt = jwtService.generateToken(barista.getUsername());
+        String accessToken = jwtService.generateAccessToken(barista.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(barista.getUsername());
 
-        // ✅ Save new token in DB
-        BaristaToken newToken = new BaristaToken();
-        newToken.setToken(jwt);
-        newToken.setBarista(barista);
-        newToken.setRevoked(false);
-        newToken.setExpired(false);
-        tokenRepository.save(newToken);
 
-        // ✅ Update last login
+
+        tokenRepository.save(createTokenEntity(accessToken, barista, "ACCESS"));
+        tokenRepository.save(createTokenEntity(refreshToken, barista, "REFRESH"));
+
+        // Update last login
         barista.setLast_login(OffsetDateTime.now());
         baristasRepository.save(barista);
 
-        return new LoginResponse(jwt, barista);
+        return new LoginResponse(accessToken, refreshToken, barista);
     }
+
+    public LoginResponse refreshAccessToken(String refreshToken) {
+        String username = jwtService.extractUsername(refreshToken);
+        Baristas barista = baristasRepository.findByUsername(username);
+
+        if (barista == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        UserPrincipal userPrincipal = new UserPrincipal(barista);
+
+        if (!jwtService.validToken(refreshToken, userPrincipal)) {
+            throw new RuntimeException("Invalid or expired refresh token");
+        }
+
+        String newAccessToken = jwtService.generateAccessToken(username);
+
+        tokenRepository.save(createTokenEntity(newAccessToken, barista, "ACCESS"));
+
+        return new LoginResponse(newAccessToken, refreshToken, barista);
+    }
+
 
 
     public void logoutBarista(String token) {
@@ -93,5 +111,14 @@ public class BaristasService {
         baristaToken.setRevoked(true);
         baristaToken.setRevoked_at(ZonedDateTime.now().toOffsetDateTime());
         tokenRepository.save(baristaToken);
+    }
+    private BaristaToken createTokenEntity(String token, Baristas barista, String type) {
+        BaristaToken baristaToken = new BaristaToken();
+        baristaToken.setToken(token);
+        baristaToken.setBarista(barista);
+        baristaToken.setRevoked(false);
+        baristaToken.setExpired(false);
+        baristaToken.setToken_type(type);
+        return baristaToken;
     }
 }

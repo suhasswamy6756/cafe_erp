@@ -2,8 +2,8 @@ package com.cafe.erp.auth.controller;
 
 import com.cafe.erp.common.model.ApiResponse;
 import com.cafe.erp.auth.entity.Baristas;
-import com.cafe.erp.auth.entity.LoginRequest;
-import com.cafe.erp.auth.entity.LoginResponse;
+import com.cafe.erp.auth.DTO.LoginRequest;
+import com.cafe.erp.auth.DTO.LoginResponse;
 import com.cafe.erp.auth.service.BaristasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +52,20 @@ public class BaristaController {
         baristasService.logoutBarista(token);
 
         return ResponseEntity.ok(ApiResponse.success("Logout successful", null, 200));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshAccessToken(
+            @RequestHeader("Authorization") String authorizationHeader) {
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(400, "Invalid Authorization header"));
+        }
+
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+
+        return ResponseEntity.ok(ApiResponse.success("Access token refreshed successfully", baristasService.refreshAccessToken(token), 200));
     }
 
 

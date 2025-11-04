@@ -1,5 +1,6 @@
-package com.cafe.erp.auth.entity;
+package com.cafe.erp.auth.DTO;
 
+import com.cafe.erp.auth.entity.Baristas;
 import lombok.*;
 
 @Setter
@@ -8,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginResponse {
-    private String token;
+    private String accessToken;
+    private String refreshToken;
     private Baristas barista;
 }
