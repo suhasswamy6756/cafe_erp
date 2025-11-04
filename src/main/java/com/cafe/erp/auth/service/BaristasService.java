@@ -39,7 +39,7 @@ public class BaristasService {
 
     // Register a new barista
     public Baristas registerBarista(Baristas barista) {
-        barista.setPassword_hash(passwordEncoder.encode(barista.getPassword_hash()));
+        barista.setPasswordHash(passwordEncoder.encode(barista.getPasswordHash()));
         return baristasRepository.save(barista);
     }
 
@@ -76,7 +76,7 @@ public class BaristasService {
         tokenRepository.save(createTokenEntity(refreshToken, barista, "REFRESH"));
 
         // Update last login
-        barista.setLast_login(OffsetDateTime.now());
+        barista.setLastLogin(OffsetDateTime.now());
         baristasRepository.save(barista);
 
         return new LoginResponse(accessToken, refreshToken, barista);

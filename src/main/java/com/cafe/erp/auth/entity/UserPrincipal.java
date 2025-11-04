@@ -2,6 +2,8 @@ package com.cafe.erp.auth.entity;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,13 +13,21 @@ public record UserPrincipal(Baristas barista) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        Set<Roles> roles = barista.getRoles();
         // Normalize role to uppercase and add ROLE_ prefix
-        return List.of(new SimpleGrantedAuthority("ROLE_" + barista.getRole().toUpperCase()));
+        if (roles == null || roles.isEmpty()) {
+            return Set.of(); // no roles assigned
+        }
+
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRoleName().toUpperCase()))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public String getPassword() {
-        return barista.getPassword_hash();
+        return barista.getPasswordHash();
     }
 
     @Override

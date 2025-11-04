@@ -1,29 +1,31 @@
 package com.cafe.erp.auth.entity;
 
 import com.cafe.erp.common.model.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @Entity
 @Table(name = "roles")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Roles extends BaseEntity {
-    @Column(name = "role_id", nullable = false)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
     private Long roleId;
 
-    @Column(name = "role_name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String roleName;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description")
     private String roleDescription;
 
     @Column(name = "is_active")
-    private boolean isActive;
-
+    private boolean isActive = true;
 }

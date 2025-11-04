@@ -1,30 +1,42 @@
 package com.cafe.erp.auth.entity;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
 
+@Data
+@Entity
+@Table(name = "user_roles")
+@NoArgsConstructor
+@AllArgsConstructor
+@IdClass(UserRolesMappingId.class)
+@Builder
 public class UserRolesMapping {
-    @Column(name = "user_id", nullable = false)
+
+    @Id
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "role_id", nullable = false)
+    @Id
+    @Column(name = "role_id")
     private Long roleId;
 
-    @Column(name = "assigned_by", nullable = false)
+    @Column(name = "assigned_by")
     private Long assignedBy;
 
-    @Column(name = "assigned_at", nullable = false)
-    private OffsetDateTime assignedAt;
+    @Column(name = "assigned_at")
+    private OffsetDateTime assignedAt = OffsetDateTime.now();
 
-    @Column(name = "revoked_by", nullable = false)
+    @Column(name = "revoked_by")
     private Long revokedBy;
 
     @Column(name = "revoked_at")
     private OffsetDateTime revokedAt;
 
     @Column(name = "is_deleted")
-    private boolean isDeleted;
-
-
+    private boolean isDeleted = false;
 }

@@ -9,6 +9,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,27 +22,38 @@ public class Baristas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int user_id;
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
-    private String full_name;
-    private String role;
 
-    private LocalDate hire_date;
-    private String password_hash;
-    private OffsetDateTime last_login;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Roles> roles = new HashSet<>();
+
+
+    @Column(name = "hire_date")
+    private LocalDate hireDate;
+
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+    @Column(name = "last_login")
+    private OffsetDateTime lastLogin;
 
     @JsonProperty("is_active")
-    private boolean is_active;
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
 
-    private String phone_number;
-
-    // Custom getter to avoid _active
-    @JsonProperty("is_active")
-    public boolean getIs_active() {
-        return is_active;
-    }
-
-    public void setIs_active(boolean is_active) {
-        this.is_active = is_active;
-    }
+    @Column(name = "phone_number", unique = true)
+    private String phoneNumber;
 }
