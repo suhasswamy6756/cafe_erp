@@ -1,10 +1,12 @@
 package com.cafe.erp.auth.service;
 
+import com.cafe.erp.auth.DTO.BaristaResponseDTO;
 import com.cafe.erp.auth.DTO.LoginRequest;
 import com.cafe.erp.auth.DTO.LoginResponse;
 import com.cafe.erp.auth.entity.*;
 import com.cafe.erp.auth.repository.BaristaRepository;
 import com.cafe.erp.auth.repository.BaristaTokenRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class BaristasService {
@@ -33,17 +37,50 @@ public class BaristasService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public List<Baristas> getAllBaristas() {
-        return baristasRepository.findAll();
+    // ------------------------------------------------------------------------
+    // Fetch all baristas
+    // ------------------------------------------------------------------------
+    @Transactional(readOnly = true)
+    public List<BaristaResponseDTO> getAllBaristas() {
+        List<Baristas> baristas = baristasRepository.findAllWithRoles();
+
+        return baristas.stream().map(barista -> {
+            // Filter valid roles and flatten
+            Set<RoleResponseDTO> roles = barista.getRoleMappings().stream()
+                    .filter(rm -> rm.getRevokedAt() == null && !rm.isDeleted())
+                    .map(UserRolesMapping::getRole)
+                    .filter(Roles::isActive)
+                    .map(role -> new RoleResponseDTO(
+                            role.getRoleId(),
+                            role.getRoleName(),
+                            role.getRoleDescription(),
+                            role.isActive()
+                    ))
+                    .collect(Collectors.toSet());
+
+            // Return unified DTO
+            return new BaristaResponseDTO(
+                    barista.getUserId(),
+                    barista.getUsername(),
+                    barista.getFullName(),
+                    roles
+            );
+        }).collect(Collectors.toList());
     }
 
-    // Register a new barista
+
+
+
+
     public Baristas registerBarista(Baristas barista) {
         barista.setPasswordHash(passwordEncoder.encode(barista.getPasswordHash()));
         return baristasRepository.save(barista);
     }
 
-    //  Login logic (returns token + barista info)
+    // ------------------------------------------------------------------------
+    // Login (returns tokens + clean DTO)
+    // ------------------------------------------------------------------------
+    @Transactional
     public LoginResponse loginBarista(LoginRequest loginRequest) {
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -56,21 +93,20 @@ public class BaristasService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        // Get the user
         Baristas barista = baristasRepository.findByUsername(loginRequest.getUsername());
 
-        // Revoke all old tokens
+
+        // Revoke existing tokens
         List<BaristaToken> oldTokens = tokenRepository.findAllByBaristaAndRevokedFalse(barista);
-        for (BaristaToken t : oldTokens) {
+        oldTokens.forEach(t -> {
             t.setRevoked(true);
             t.setExpired(true);
-        }
+        });
         tokenRepository.saveAll(oldTokens);
 
+        // Generate new tokens
         String accessToken = jwtService.generateAccessToken(barista.getUsername());
         String refreshToken = jwtService.generateRefreshToken(barista.getUsername());
-
-
 
         tokenRepository.save(createTokenEntity(accessToken, barista, "ACCESS"));
         tokenRepository.save(createTokenEntity(refreshToken, barista, "REFRESH"));
@@ -79,9 +115,15 @@ public class BaristasService {
         barista.setLastLogin(OffsetDateTime.now());
         baristasRepository.save(barista);
 
-        return new LoginResponse(accessToken, refreshToken, barista);
+        // ✅ Convert to DTO (no proxies)
+        BaristaResponseDTO baristaDTO = mapToDTO(barista);
+
+        return new LoginResponse(accessToken, refreshToken, baristaDTO);
     }
 
+    // ------------------------------------------------------------------------
+    // Refresh Access Token
+    // ------------------------------------------------------------------------
     public LoginResponse refreshAccessToken(String refreshToken) {
         String username = jwtService.extractUsername(refreshToken);
         Baristas barista = baristasRepository.findByUsername(username);
@@ -97,21 +139,29 @@ public class BaristasService {
         }
 
         String newAccessToken = jwtService.generateAccessToken(username);
-
         tokenRepository.save(createTokenEntity(newAccessToken, barista, "ACCESS"));
 
-        return new LoginResponse(newAccessToken, refreshToken, barista);
+        BaristaResponseDTO baristaDTO = mapToDTO(barista);
+
+        return new LoginResponse(newAccessToken, refreshToken, baristaDTO);
     }
 
-
-
+    // ------------------------------------------------------------------------
+    // Logout (revoke current token)
+    // ------------------------------------------------------------------------
     public void logoutBarista(String token) {
         BaristaToken baristaToken = tokenRepository.findByToken(token);
-        baristaToken.setExpired(true);
-        baristaToken.setRevoked(true);
-        baristaToken.setRevoked_at(ZonedDateTime.now().toOffsetDateTime());
-        tokenRepository.save(baristaToken);
+        if (baristaToken != null) {
+            baristaToken.setExpired(true);
+            baristaToken.setRevoked(true);
+            baristaToken.setRevoked_at(ZonedDateTime.now().toOffsetDateTime());
+            tokenRepository.save(baristaToken);
+        }
     }
+
+    // ------------------------------------------------------------------------
+    // Helper: create token entity
+    // ------------------------------------------------------------------------
     private BaristaToken createTokenEntity(String token, Baristas barista, String type) {
         BaristaToken baristaToken = new BaristaToken();
         baristaToken.setToken(token);
@@ -121,4 +171,29 @@ public class BaristasService {
         baristaToken.setToken_type(type);
         return baristaToken;
     }
+
+    // ------------------------------------------------------------------------
+    // Helper: map Barista -> DTO (flatten roles)
+    // ------------------------------------------------------------------------
+    private BaristaResponseDTO mapToDTO(Baristas barista) {
+        Set<RoleResponseDTO> roles = barista.getRoleMappings().stream()
+                .filter(rm -> rm.getRevokedAt() == null && !rm.isDeleted())  // ✅ filter revoked
+                .map(UserRolesMapping::getRole)
+                .filter(Roles::isActive)
+                .map(role -> new RoleResponseDTO(
+                        role.getRoleId(),
+                        role.getRoleName(),
+                        role.getRoleDescription(),
+                        role.isActive()
+                ))
+                .collect(Collectors.toSet());
+
+        return new BaristaResponseDTO(
+                barista.getUserId(),
+                barista.getUsername(),
+                barista.getFullName(),
+                roles
+        );
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.cafe.erp.auth.service;
 
+import com.cafe.erp.auth.entity.Roles;
 import com.cafe.erp.auth.entity.UserRolesMapping;
 import com.cafe.erp.auth.repository.UserRolesMappingRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,11 +31,12 @@ public class UserRoleMappingService {
                 .ifPresent(mapping -> {
                     mapping.setRevokedBy(revokedBy);
                     mapping.setRevokedAt(OffsetDateTime.now());
+                    mapping.setDeleted(true);
                     repository.save(mapping);
                 });
     }
 
     public List<UserRolesMapping> getRolesForUser(Long userId) {
-        return repository.findByUserIdAndIsDeletedFalse(userId);
+        return repository.findByUserIdAndIsDeletedFalseAndRevokedAtIsNull(userId);
     }
 }

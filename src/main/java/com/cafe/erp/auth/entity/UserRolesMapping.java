@@ -1,20 +1,20 @@
 package com.cafe.erp.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 
 @Data
 @Entity
-@Table(name = "user_roles")
+@Table(name = "cafe_users_roles")
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(UserRolesMappingId.class)
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@IdClass(UserRolesMappingId.class)
 public class UserRolesMapping {
 
     @Id
@@ -24,6 +24,20 @@ public class UserRolesMapping {
     @Id
     @Column(name = "role_id")
     private Long roleId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JsonIgnore
+    private Baristas barista;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", insertable = false, updatable = false)
+    @JsonIgnore // Hide the full role object in JSON
+    private Roles role;
+
+    // ✅ Add this field for frontend simplicity
+    @Transient
+    private String roleName;
 
     @Column(name = "assigned_by")
     private Long assignedBy;
@@ -38,5 +52,20 @@ public class UserRolesMapping {
     private OffsetDateTime revokedAt;
 
     @Column(name = "is_deleted")
-    private boolean isDeleted = false;
+    private boolean isDeleted;
+
+    // ✅ Automatically return roleName if available
+    public String getRoleName() {
+        if (role != null && role.getRoleName() != null) {
+            return role.getRoleName();
+        }
+        return roleName; // fallback if lazy or detached
+    }
+
+    // Optional convenience: set it manually from service
+    public void setRoleNameFromEntity() {
+        if (role != null) {
+            this.roleName = role.getRoleName();
+        }
+    }
 }

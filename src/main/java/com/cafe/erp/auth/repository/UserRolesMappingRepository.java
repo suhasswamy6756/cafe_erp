@@ -7,8 +7,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-
 @Repository
 public interface UserRolesMappingRepository extends JpaRepository<UserRolesMapping, UserRolesMappingId> {
-    List<UserRolesMapping> findByUserIdAndIsDeletedFalse(Long userId);
+
+    List<UserRolesMapping> findByUserIdAndIsDeletedFalseAndRevokedAtIsNull(Long userId);
+
 }
