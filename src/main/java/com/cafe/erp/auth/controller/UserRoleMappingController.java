@@ -1,6 +1,5 @@
 package com.cafe.erp.auth.controller;
 
-import com.cafe.erp.auth.entity.Roles;
 import com.cafe.erp.auth.entity.UserRolesMapping;
 import com.cafe.erp.auth.service.UserRoleMappingService;
 import com.cafe.erp.common.model.ApiResponse;
@@ -20,19 +19,13 @@ public class UserRoleMappingController {
 
     @PostMapping("/assign")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<UserRolesMapping>> assignRole(
-            @RequestParam Long userId,
-            @RequestParam Long roleId,
-            @RequestParam Long assignedBy) {
+    public ResponseEntity<ApiResponse<UserRolesMapping>> assignRole(@RequestParam Long userId, @RequestParam Long roleId, @RequestParam Long assignedBy) {
         return ResponseEntity.ok(ApiResponse.success("Role assigned successfully", service.assignRole(userId, roleId), 200));
     }
 
     @PostMapping("/revoke")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<String>> revokeRole(
-            @RequestParam Long userId,
-            @RequestParam Long roleId,
-            @RequestParam Long revokedBy) {
+    public ResponseEntity<ApiResponse<String>> revokeRole(@RequestParam Long userId, @RequestParam Long roleId) {
         service.revokeRole(userId, roleId);
         return ResponseEntity.ok(ApiResponse.success("Role revoked successfully", null, 200));
     }

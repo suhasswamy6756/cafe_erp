@@ -65,6 +65,7 @@ public class UserRoleMappingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role assignment not found for user."));
 
         // ✅ Prevent double revoke
+        System.out.println(mapping.getRevokedAt());
         if (mapping.getRevokedAt() != null) {
             throw new BadRequestException("Role already revoked for this user.");
         }

@@ -19,7 +19,6 @@ public class MyUserDetailsService implements UserDetailsService {
         Baristas barista = userRepository.findByUsernameWithRoles(username);
         if (barista == null) {
             // return new MyUserDetails(barista);
-            System.out.println("User not found with username: " + username);
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
         return new UserPrincipal(barista);

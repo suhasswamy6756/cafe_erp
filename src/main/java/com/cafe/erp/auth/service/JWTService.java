@@ -1,37 +1,25 @@
 package com.cafe.erp.auth.service;
 
+import com.cafe.erp.common.config.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JWTService {
-    private String secretKey = "";
 
-    public JWTService() {
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
 
-    }
+    private final JwtUtil jwtUtil;
 
 
     public String generateAccessToken(String username) {
-        return buildToken(username,1000L * 60 * 60 * 24 );
+        return buildToken(username, 1000L * 60 * 60 * 24);
     }
 
     public String generateRefreshToken(String username) {
@@ -45,15 +33,10 @@ public class JWTService {
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expirationTimeMillis))
                 .and()
-                .signWith(getKey())
+                .signWith(jwtUtil.getKey())
                 .compact();
     }
 
-
-    private SecretKey getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
 
     public boolean validToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
@@ -70,7 +53,7 @@ public class JWTService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().verifyWith(getKey()).build().
+        return Jwts.parser().verifyWith(jwtUtil.getKey()).build().
                 parseSignedClaims(token).getPayload();
 
     }
