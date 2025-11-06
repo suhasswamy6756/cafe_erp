@@ -24,7 +24,7 @@ public class UserRoleMappingController {
             @RequestParam Long userId,
             @RequestParam Long roleId,
             @RequestParam Long assignedBy) {
-        return ResponseEntity.ok(ApiResponse.success("Role assigned successfully", service.assignRole(userId, roleId, assignedBy), 200));
+        return ResponseEntity.ok(ApiResponse.success("Role assigned successfully", service.assignRole(userId, roleId), 200));
     }
 
     @PostMapping("/revoke")
@@ -33,7 +33,7 @@ public class UserRoleMappingController {
             @RequestParam Long userId,
             @RequestParam Long roleId,
             @RequestParam Long revokedBy) {
-        service.revokeRole(userId, roleId, revokedBy);
+        service.revokeRole(userId, roleId);
         return ResponseEntity.ok(ApiResponse.success("Role revoked successfully", null, 200));
     }
 

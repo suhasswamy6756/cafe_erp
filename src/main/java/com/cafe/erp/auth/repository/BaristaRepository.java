@@ -26,4 +26,17 @@ public interface BaristaRepository extends JpaRepository<Baristas, Long> {
     @EntityGraph(attributePaths = {"roleMappings", "roleMappings.role"})
     @Query("SELECT b FROM Baristas b")
     List<Baristas> findAllWithRoles();
+
+    // ✅ Fetch a non-deleted barista by username
+    Baristas findByUsernameAndIsDeletedFalse(String username);
+
+    // ✅ Check duplicate username during registration
+    boolean existsByUsernameAndIsDeletedFalse(String username);
+
+    // ✅ Fetch by ID but ignore deleted users
+    Baristas findByUserIdAndIsDeletedFalse(Long id);
+
+    // ✅ Fetch all non-deleted baristas
+    List<Baristas> findAllByIsDeletedFalse();
+
 }

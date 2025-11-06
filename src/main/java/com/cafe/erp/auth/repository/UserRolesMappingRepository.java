@@ -12,4 +12,8 @@ public interface UserRolesMappingRepository extends JpaRepository<UserRolesMappi
 
     List<UserRolesMapping> findByUserIdAndIsDeletedFalseAndRevokedAtIsNull(Long userId);
 
+    boolean existsByRoleId(Long roleId);
+
+    long countByRoleId(Long roleId);
+    boolean existsByUserIdAndRoleIdAndIsDeletedFalse(Long userId, Long roleId);
 }

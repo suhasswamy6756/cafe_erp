@@ -1,6 +1,7 @@
 package com.cafe.erp.common.config;
 
 import com.cafe.erp.auth.service.MyUserDetailsService;
+import com.cafe.erp.common.security.JwtAuthEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,9 @@ public class SecurityConfig {
     @Autowired
     private JWTFilter jwtFilter;
 
+    @Autowired
+    private JwtAuthEntryPoint jwtAuthEntryPoint;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -53,6 +57,8 @@ public class SecurityConfig {
                 // Use basic authentication for now
                 .httpBasic(Customizer.withDefaults())
 
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthEntryPoint))
                 // Stateless session for REST APIs
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
