@@ -6,13 +6,13 @@ import com.cafe.erp.auth.DTO.LoginResponse;
 import com.cafe.erp.auth.entity.*;
 import com.cafe.erp.auth.repository.BaristaRepository;
 import com.cafe.erp.auth.repository.BaristaTokenRepository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
@@ -63,13 +63,17 @@ public class BaristasService {
                     barista.getUserId(),
                     barista.getUsername(),
                     barista.getFullName(),
+                    barista.getLastLogin(),
+                    barista.getPhoneNumber(),
+                    barista.getCreatedBy(),
+                    barista.getUpdatedBy(),
+                    barista.getCreatedAt(),
+                    barista.getUpdatedAt(),
+
                     roles
             );
         }).collect(Collectors.toList());
     }
-
-
-
 
 
     public Baristas registerBarista(Baristas barista) {
@@ -192,7 +196,14 @@ public class BaristasService {
                 barista.getUserId(),
                 barista.getUsername(),
                 barista.getFullName(),
+                barista.getLastLogin(),
+                barista.getPhoneNumber(),
+                barista.getCreatedBy(),
+                barista.getUpdatedBy(),
+                barista.getCreatedAt(),
+                barista.getUpdatedAt(),
                 roles
+
         );
     }
 
