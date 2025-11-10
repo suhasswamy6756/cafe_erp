@@ -1,6 +1,7 @@
 package com.cafe.erp.modules.catalogue.category.service.implementation;
 
 import com.cafe.erp.common.exception.ResourceNotFoundException;
+import com.cafe.erp.common.utils.AuditUtils;
 import com.cafe.erp.modules.catalogue.category.dto.CategoryRequestDTO;
 import com.cafe.erp.modules.catalogue.category.dto.CategoryResponseDTO;
 import com.cafe.erp.modules.catalogue.category.entity.Category;
@@ -130,7 +131,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setIsDeleted(true);
         category.setDeletedAt(LocalDateTime.now());
-        category.setDeletedBy( SecurityContextHolder.getContext().getAuthentication().getName()); // we'll explain this below
+        category.setDeletedBy(AuditUtils.getCurrentUser()); // we'll explain this below
 
         categoryRepository.save(category);
     }

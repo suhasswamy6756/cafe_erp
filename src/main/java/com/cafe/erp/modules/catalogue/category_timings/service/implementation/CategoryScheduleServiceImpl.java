@@ -1,6 +1,7 @@
 package com.cafe.erp.modules.catalogue.category_timings.service.implementation;
 
 import com.cafe.erp.common.exception.ResourceNotFoundException;
+import com.cafe.erp.common.utils.AuditUtils;
 import com.cafe.erp.modules.catalogue.category_timings.dto.CategoryScheduleRequestDTO;
 import com.cafe.erp.modules.catalogue.category_timings.dto.CategoryScheduleResponseDTO;
 import com.cafe.erp.modules.catalogue.category_timings.entity.CategorySchedule;
@@ -90,7 +91,7 @@ public class CategoryScheduleServiceImpl implements CategoryScheduleService {
 
         schedule.setIsDeleted(true);
         schedule.setDeletedAt(LocalDateTime.now());
-        schedule.setDeletedBy(SecurityContextHolder.getContext().getAuthentication().getName());
+        schedule.setDeletedBy(AuditUtils.getCurrentUser());
 
         scheduleRepo.save(schedule);
     }
