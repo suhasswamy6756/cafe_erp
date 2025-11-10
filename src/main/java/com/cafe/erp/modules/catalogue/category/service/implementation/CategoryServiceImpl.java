@@ -118,6 +118,8 @@ public class CategoryServiceImpl implements CategoryService {
         category.setTimingGroupId(dto.getTimingGroupId());
         category.setSortOrder(dto.getSortOrder());
         category.setActive(dto.isActive());
+        category.setUpdatedAt(LocalDateTime.now());
+        category.setUpdatedBy(AuditUtils.getCurrentUser());
 
         Category saved = categoryRepository.save(category);
 

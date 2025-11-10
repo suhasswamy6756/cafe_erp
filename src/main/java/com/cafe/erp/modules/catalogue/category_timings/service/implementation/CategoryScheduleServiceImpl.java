@@ -78,6 +78,8 @@ public class CategoryScheduleServiceImpl implements CategoryScheduleService {
         schedule.setStartTime(LocalTime.parse(dto.getStartTime()));
         schedule.setEndTime(LocalTime.parse(dto.getEndTime()));
         schedule.setIsActive(dto.getIsActive());
+        schedule.setUpdatedBy(AuditUtils.getCurrentUser());
+        schedule.setUpdatedAt(LocalDateTime.now());
 
         CategorySchedule saved = scheduleRepo.save(schedule);
 
@@ -118,6 +120,8 @@ public class CategoryScheduleServiceImpl implements CategoryScheduleService {
                 .isActive(s.getIsActive())
                 .createdAt(s.getCreatedAt())
                 .updatedAt(s.getUpdatedAt())
+                .createdBy(s.getCreatedBy())
+                .updatedBy(s.getUpdatedBy())
                 .build();
     }
 }
