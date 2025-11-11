@@ -1,7 +1,6 @@
 package com.cafe.erp.modules.catalogue.item.service.implementation;
 
 import com.cafe.erp.common.exception.ResourceNotFoundException;
-import com.cafe.erp.common.utils.AuditUtils;
 import com.cafe.erp.modules.catalogue.category.entity.Category;
 import com.cafe.erp.modules.catalogue.category.repository.CategoryRepository;
 import com.cafe.erp.modules.catalogue.item.dto.ItemRequestDTO;
@@ -19,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
+import static com.cafe.erp.common.utils.AuditUtils.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor
@@ -86,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemResponseDTO getItemById(Long id) {
-        Item item = itemRepo.findById(id)
+        Item item = itemRepo.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
         return mapToResponse(item);
     }
@@ -98,40 +100,63 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepo.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
-        // Map fields
-        item.setName(request.getName());
-        item.setShortName(request.getShortName());
-        item.setHandle(request.getHandle());
-        item.setDescription(request.getDescription());
-        item.setCategory(categoryRepo.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found")));
-
-        item.setBasePrice(request.getBasePrice());
-        item.setDineInPrice(request.getDineInPrice());
-        item.setTakeawayPrice(request.getTakeawayPrice());
-        item.setDeliveryPrice(request.getDeliveryPrice());
-        item.setAggregatorPrice(request.getAggregatorPrice());
-
-        item.setMarkupType(request.getMarkupType());
-        item.setMarkupValue(request.getMarkupValue());
-        item.setIsActive(request.getIsActive());
-
+        // ✅ Update normal fields
+        mapFields(item, request);
         itemRepo.save(item);
 
-        // ✅ Clear existing modifier groups
-//        itemModRepo.dele(itemId);
+        String user = getCurrentUser();  // your helper
+        LocalDateTime now = LocalDateTime.now();
 
-        // ✅ Insert new modifier groups
+        // ✅ Fetch all existing mappings once
+        List<ItemModifierGroup> existingLinks =
+                itemModRepo.findAllByItemId(itemId);
+
+        // ✅ Step 1: Soft delete everything (mark deleted)
+        for (ItemModifierGroup link : existingLinks) {
+            link.setIsDeleted(true);
+            link.setDeletedAt(now);
+            link.setDeletedBy(user);
+            itemModRepo.save(link);
+        }
+
+        // ✅ Step 2: For each incoming modifier ID → re-enable or insert new
         for (Long mgId : request.getModifierGroupIds()) {
-            ModifierGroups mg = groupRepo.findById(mgId)
-                    .orElseThrow(() -> new ResourceNotFoundException("ModifierGroup not found"));
 
-            ItemModifierGroup img = new ItemModifierGroup();
-            img.setItem(item);
-            img.setModifierGroup(mg);
-            img.setSortOrder(0);
+            // If already exists → reactivate instead of inserting
+            Optional<ItemModifierGroup> existing =
+                    itemModRepo.findByItemIdAndGroupId(itemId, mgId);
 
-            itemModRepo.save(img);
+            if (existing.isPresent()) {
+
+                ItemModifierGroup link = existing.get();
+
+                // Reactivate
+                link.setIsDeleted(false);
+                link.setDeletedAt(null);
+                link.setDeletedBy(null);
+
+                link.setUpdatedAt(now);
+                link.setUpdatedBy(user);
+
+                itemModRepo.save(link);
+
+            } else {
+
+                // Insert new link
+                ModifierGroups mg = groupRepo.findById(mgId)
+                        .orElseThrow(() -> new ResourceNotFoundException("ModifierGroup not found"));
+
+                ItemModifierGroup newLink = new ItemModifierGroup();
+                newLink.setItem(item);
+                newLink.setModifierGroup(mg);
+                newLink.setSortOrder(0);
+                newLink.setIsDeleted(false);
+
+                newLink.setCreatedAt(now);
+                newLink.setCreatedBy(user);
+
+                itemModRepo.save(newLink);
+            }
         }
 
         return mapToResponse(item);
@@ -145,7 +170,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
         item.setIsDeleted(true);
         item.setDeletedAt(LocalDateTime.now());
-        item.setDeletedBy(AuditUtils.getCurrentUser());
+        item.setDeletedBy(getCurrentUser());
         itemRepo.save(item);
     }
 
@@ -179,4 +204,32 @@ public class ItemServiceImpl implements ItemService {
                 .updatedAt(item.getUpdatedAt())
                 .build();
     }
+
+    private void mapFields(Item item, ItemRequestDTO request) {
+
+        item.setName(request.getName());
+        item.setShortName(request.getShortName());
+        item.setHandle(request.getHandle());
+        item.setDescription(request.getDescription());
+
+        // Category lookup should happen outside
+        Category category = categoryRepo.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        item.setCategory(category);
+
+        item.setBasePrice(request.getBasePrice());
+        item.setDineInPrice(request.getDineInPrice());
+        item.setTakeawayPrice(request.getTakeawayPrice());
+        item.setDeliveryPrice(request.getDeliveryPrice());
+        item.setAggregatorPrice(request.getAggregatorPrice());
+
+        item.setMarkupType(request.getMarkupType());
+        item.setMarkupValue(request.getMarkupValue());
+
+        item.setIsActive(request.getIsActive());
+
+        item.setUpdatedAt(LocalDateTime.now());
+        item.setUpdatedBy(getCurrentUser());
+    }
+
 }
