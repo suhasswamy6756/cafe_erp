@@ -37,41 +37,19 @@ public class ItemServiceImpl implements ItemService {
 
         Category category = null;
         if (dto.getCategoryId() != null) {
-            category = categoryRepo.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            category = categoryRepo.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         }
 
-        Item item = Item.builder()
-                .name(dto.getName())
-                .shortName(dto.getShortName())
-                .handle(dto.getHandle())
-                .description(dto.getDescription())
-                .category(category)
-                .basePrice(dto.getBasePrice())
-                .dineInPrice(dto.getDineInPrice())
-                .takeawayPrice(dto.getTakeawayPrice())
-                .deliveryPrice(dto.getDeliveryPrice())
-                .aggregatorPrice(dto.getAggregatorPrice())
-                .markupType(dto.getMarkupType())
-                .markupValue(dto.getMarkupValue())
-                .isActive(dto.getIsActive())
-                .build();
+        Item item = Item.builder().name(dto.getName()).shortName(dto.getShortName()).handle(dto.getHandle()).description(dto.getDescription()).category(category).basePrice(dto.getBasePrice()).dineInPrice(dto.getDineInPrice()).takeawayPrice(dto.getTakeawayPrice()).deliveryPrice(dto.getDeliveryPrice()).aggregatorPrice(dto.getAggregatorPrice()).markupType(dto.getMarkupType()).markupValue(dto.getMarkupValue()).isActive(dto.getIsActive()).build();
 
         Item saved = itemRepo.save(item);
 
         // Save modifier groups mapping
         if (dto.getModifierGroupIds() != null) {
             for (Long mgId : dto.getModifierGroupIds()) {
-                ModifierGroups mg = groupRepo.findByIdAndIsDeletedFalse(mgId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Modifier group not found"));
+                ModifierGroups mg = groupRepo.findByIdAndIsDeletedFalse(mgId).orElseThrow(() -> new ResourceNotFoundException("Modifier group not found"));
 
-                itemModRepo.save(
-                        ItemModifierGroup.builder()
-                                .item(saved)
-                                .modifierGroup(mg)
-                                .sortOrder(0)
-                                .build()
-                );
+                itemModRepo.save(ItemModifierGroup.builder().item(saved).modifierGroup(mg).sortOrder(0).build());
             }
         }
 
@@ -80,16 +58,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemResponseDTO> getAllItems() {
-        return itemRepo.findAllByIsDeletedFalse()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        return itemRepo.findAllByIsDeletedFalse().stream().map(this::mapToResponse).toList();
     }
 
     @Override
     public ItemResponseDTO getItemById(Long id) {
-        Item item = itemRepo.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+        Item item = itemRepo.findByIdAndIsDeletedFalse(id).orElseThrow(() -> new ResourceNotFoundException("Item not found"));
         return mapToResponse(item);
     }
 
@@ -97,8 +71,7 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemResponseDTO updateItem(Long itemId, ItemRequestDTO request) {
 
-        Item item = itemRepo.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+        Item item = itemRepo.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
         // ✅ Update normal fields
         mapFields(item, request);
@@ -108,8 +81,7 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
 
         // ✅ Fetch all existing mappings once
-        List<ItemModifierGroup> existingLinks =
-                itemModRepo.findAllByItemId(itemId);
+        List<ItemModifierGroup> existingLinks = itemModRepo.findAllByItemId(itemId);
 
         // ✅ Step 1: Soft delete everything (mark deleted)
         for (ItemModifierGroup link : existingLinks) {
@@ -123,8 +95,7 @@ public class ItemServiceImpl implements ItemService {
         for (Long mgId : request.getModifierGroupIds()) {
 
             // If already exists → reactivate instead of inserting
-            Optional<ItemModifierGroup> existing =
-                    itemModRepo.findByItemIdAndGroupId(itemId, mgId);
+            Optional<ItemModifierGroup> existing = itemModRepo.findByItemIdAndGroupId(itemId, mgId);
 
             if (existing.isPresent()) {
 
@@ -143,8 +114,7 @@ public class ItemServiceImpl implements ItemService {
             } else {
 
                 // Insert new link
-                ModifierGroups mg = groupRepo.findById(mgId)
-                        .orElseThrow(() -> new ResourceNotFoundException("ModifierGroup not found"));
+                ModifierGroups mg = groupRepo.findById(mgId).orElseThrow(() -> new ResourceNotFoundException("ModifierGroup not found"));
 
                 ItemModifierGroup newLink = new ItemModifierGroup();
                 newLink.setItem(item);
@@ -162,47 +132,36 @@ public class ItemServiceImpl implements ItemService {
         return mapToResponse(item);
     }
 
-
     @Transactional
     @Override
     public void deleteItem(Long id) {
-        Item item = itemRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+        Item item = itemRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+
+        String currentUser = getCurrentUser();
+        LocalDateTime now = LocalDateTime.now();
+
+        // ✅ Soft delete all modifier group mappings for this item
+        List<ItemModifierGroup> mappings = itemModRepo.findAllByItemId(id);
+        mappings.forEach(m -> {
+            m.setIsDeleted(true);
+            m.setDeletedAt(now);
+            m.setDeletedBy(currentUser);
+            itemModRepo.save(m);
+        });
+
+        // ✅ Soft delete item
         item.setIsDeleted(true);
-        item.setDeletedAt(LocalDateTime.now());
-        item.setDeletedBy(getCurrentUser());
+        item.setDeletedAt(now);
+        item.setDeletedBy(currentUser);
         itemRepo.save(item);
     }
 
 
     private ItemResponseDTO mapToResponse(Item item) {
 
-        List<Long> modifierGroupIds = itemModRepo.findAllByItemAndIsDeletedFalse(item)
-                .stream()
-                .map(m -> m.getModifierGroup().getId())
-                .toList();
+        List<Long> modifierGroupIds = itemModRepo.findAllByItemAndIsDeletedFalse(item).stream().map(m -> m.getModifierGroup().getId()).toList();
 
-        return ItemResponseDTO.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .shortName(item.getShortName())
-                .handle(item.getHandle())
-                .description(item.getDescription())
-                .categoryId(item.getCategory() != null ? item.getCategory().getId() : null)
-                .basePrice(item.getBasePrice())
-                .dineInPrice(item.getDineInPrice())
-                .takeawayPrice(item.getTakeawayPrice())
-                .deliveryPrice(item.getDeliveryPrice())
-                .aggregatorPrice(item.getAggregatorPrice())
-                .markupType(item.getMarkupType())
-                .markupValue(item.getMarkupValue())
-                .isActive(item.getIsActive())
-                .modifierGroupIds(modifierGroupIds)
-                .createdBy(item.getCreatedBy())
-                .updatedBy(item.getUpdatedBy())
-                .createdAt(item.getCreatedAt())
-                .updatedAt(item.getUpdatedAt())
-                .build();
+        return ItemResponseDTO.builder().id(item.getId()).name(item.getName()).shortName(item.getShortName()).handle(item.getHandle()).description(item.getDescription()).categoryId(item.getCategory() != null ? item.getCategory().getId() : null).basePrice(item.getBasePrice()).dineInPrice(item.getDineInPrice()).takeawayPrice(item.getTakeawayPrice()).deliveryPrice(item.getDeliveryPrice()).aggregatorPrice(item.getAggregatorPrice()).markupType(item.getMarkupType()).markupValue(item.getMarkupValue()).isActive(item.getIsActive()).modifierGroupIds(modifierGroupIds).createdBy(item.getCreatedBy()).updatedBy(item.getUpdatedBy()).createdAt(item.getCreatedAt()).updatedAt(item.getUpdatedAt()).build();
     }
 
     private void mapFields(Item item, ItemRequestDTO request) {
@@ -213,8 +172,7 @@ public class ItemServiceImpl implements ItemService {
         item.setDescription(request.getDescription());
 
         // Category lookup should happen outside
-        Category category = categoryRepo.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+        Category category = categoryRepo.findById(request.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         item.setCategory(category);
 
         item.setBasePrice(request.getBasePrice());
