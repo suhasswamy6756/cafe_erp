@@ -1,5 +1,6 @@
 package com.cafe.erp.modules.catalogue.item.entity;
 
+import com.cafe.erp.common.enums.FoodType;
 import com.cafe.erp.common.model.BaseEntity;
 import com.cafe.erp.modules.catalogue.category.entity.Category;
 import jakarta.persistence.*;
@@ -33,6 +34,14 @@ public class Item extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Column(name = "pos_code")
+    private String posCode;
+
+    @Column(name = "food_type")
+    @Enumerated(EnumType.STRING)
+    private FoodType foodType;
+
 
     // Pricing
     private Double basePrice;
