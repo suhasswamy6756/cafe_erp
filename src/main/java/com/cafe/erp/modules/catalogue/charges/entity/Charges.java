@@ -6,8 +6,6 @@ import com.cafe.erp.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "charges")
 @Getter
@@ -43,5 +41,9 @@ public class Charges extends BaseEntity {
 
     @Column(name = "is_active")
     private Boolean isActive = true;
+
+    public Charges(Long chargeId) {
+        this.chargeId = chargeId;
+    }
 }
 
