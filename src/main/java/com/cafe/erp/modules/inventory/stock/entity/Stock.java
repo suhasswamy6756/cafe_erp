@@ -56,7 +56,8 @@ public class Stock extends BaseEntity {
     private BigDecimal unitCost;
 
     @Enumerated(EnumType.STRING)
-    private StockStatus stockStatus = StockStatus.AVAILABLE;
+
+    private StockStatus stockStatus;
 
     // NEW FOR AUDIT
     private String sourceType;   // PURCHASE / RECEIPT / ADJUSTMENT / TRANSFER / PRODUCTION

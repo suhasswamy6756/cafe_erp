@@ -11,6 +11,7 @@ public interface StockCountItemRepository extends JpaRepository<StockCountItem, 
 
     List<StockCountItem> findByCount_CountId(Long countId);
 
-    List<StockCountItem> findByItem_ItemId(Long itemId);
+    List<StockCountItem> findByItem_Id(Long itemId);
+
 }
 

@@ -9,9 +9,10 @@ import java.util.List;
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
 
-    List<Stock> findByItem_ItemIdAndIsDeletedFalse(Long itemId);
+    List<Stock> findByItem_IdAndIsDeletedFalse(Long itemId);
 
     List<Stock> findByLocation_LocationIdAndIsDeletedFalse(Long locationId);
 
-    List<Stock> findByItem_ItemIdAndLocation_LocationIdAndIsDeletedFalse(Long itemId, Long locationId);
+    List<Stock> findByItem_IdAndLocation_LocationIdAndIsDeletedFalse(Long itemId, Long locationId);
 }
+

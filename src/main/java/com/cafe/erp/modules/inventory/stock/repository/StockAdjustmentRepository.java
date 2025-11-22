@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment, Long> {
 
-    List<StockAdjustment> findByItem_ItemId(Long itemId);
+    List<StockAdjustment> findByItem_Id(Long itemId);
 
     List<StockAdjustment> findByAdjustedAtBetween(LocalDateTime start, LocalDateTime end);
 }

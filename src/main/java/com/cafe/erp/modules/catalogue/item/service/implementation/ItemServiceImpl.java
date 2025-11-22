@@ -1,5 +1,6 @@
 package com.cafe.erp.modules.catalogue.item.service.implementation;
 
+import com.cafe.erp.common.enums.ItemType;
 import com.cafe.erp.common.exception.ResourceNotFoundException;
 import com.cafe.erp.modules.catalogue.category.entity.Category;
 import com.cafe.erp.modules.catalogue.category.repository.CategoryRepository;
@@ -40,7 +41,8 @@ public class ItemServiceImpl implements ItemService {
             category = categoryRepo.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         }
 
-        Item item = Item.builder().name(dto.getName()).shortName(dto.getShortName()).handle(dto.getHandle()).foodType(dto.getFoodType()).posCode(dto.getPosCode()).description(dto.getDescription()).category(category).basePrice(dto.getBasePrice()).dineInPrice(dto.getDineInPrice()).takeawayPrice(dto.getTakeawayPrice()).deliveryPrice(dto.getDeliveryPrice()).aggregatorPrice(dto.getAggregatorPrice()).markupType(dto.getMarkupType()).markupValue(dto.getMarkupValue()).isActive(dto.getIsActive()).build();
+        Item item = Item.builder().name(dto.getName()).shortName(dto.getShortName()).handle(dto.getHandle()).itemType(ItemType.valueOf(dto.getItemType().name()))
+.foodType(dto.getFoodType()).posCode(dto.getPosCode()).description(dto.getDescription()).category(category).basePrice(dto.getBasePrice()).dineInPrice(dto.getDineInPrice()).takeawayPrice(dto.getTakeawayPrice()).deliveryPrice(dto.getDeliveryPrice()).aggregatorPrice(dto.getAggregatorPrice()).markupType(dto.getMarkupType()).markupValue(dto.getMarkupValue()).isActive(dto.getIsActive()).build();
 
         Item saved = itemRepo.save(item);
 
@@ -161,7 +163,8 @@ public class ItemServiceImpl implements ItemService {
 
         List<Long> modifierGroupIds = itemModRepo.findAllByItemAndIsDeletedFalse(item).stream().map(m -> m.getModifierGroup().getId()).toList();
 
-        return ItemResponseDTO.builder().id(item.getId()).name(item.getName()).shortName(item.getShortName()).foodType(item.getFoodType()).posCode(item.getPosCode()).handle(item.getHandle()).description(item.getDescription()).categoryId(item.getCategory() != null ? item.getCategory().getId() : null).basePrice(item.getBasePrice()).dineInPrice(item.getDineInPrice()).takeawayPrice(item.getTakeawayPrice()).deliveryPrice(item.getDeliveryPrice()).aggregatorPrice(item.getAggregatorPrice()).markupType(item.getMarkupType()).markupValue(item.getMarkupValue()).isActive(item.getIsActive()).modifierGroupIds(modifierGroupIds).createdBy(item.getCreatedBy()).updatedBy(item.getUpdatedBy()).createdAt(item.getCreatedAt()).updatedAt(item.getUpdatedAt()).build();
+        return ItemResponseDTO.builder().id(item.getId()).name(item.getName()).shortName(item.getShortName()).itemType(ItemType.valueOf(item.getItemType().name())).
+                foodType(item.getFoodType()).posCode(item.getPosCode()).handle(item.getHandle()).description(item.getDescription()).categoryId(item.getCategory() != null ? item.getCategory().getId() : null).basePrice(item.getBasePrice()).dineInPrice(item.getDineInPrice()).takeawayPrice(item.getTakeawayPrice()).deliveryPrice(item.getDeliveryPrice()).aggregatorPrice(item.getAggregatorPrice()).markupType(item.getMarkupType()).markupValue(item.getMarkupValue()).isActive(item.getIsActive()).modifierGroupIds(modifierGroupIds).createdBy(item.getCreatedBy()).updatedBy(item.getUpdatedBy()).createdAt(item.getCreatedAt()).updatedAt(item.getUpdatedAt()).build();
     }
 
     private void mapFields(Item item, ItemRequestDTO request) {
@@ -183,6 +186,7 @@ public class ItemServiceImpl implements ItemService {
 
         item.setPosCode(request.getPosCode());
         item.setFoodType(request.getFoodType());
+        item.setItemType(ItemType.valueOf(request.getItemType().name()));
 
         item.setMarkupType(request.getMarkupType());
         item.setMarkupValue(request.getMarkupValue());

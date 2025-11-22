@@ -23,7 +23,7 @@ public class StockMapper {
         dto.setBatchNo(s.getBatchNo());
         dto.setExpiryDate(s.getExpiryDate());
         dto.setUnitCost(s.getUnitCost());
-        dto.setStockStatus(s.getStockStatus().name());
+        dto.setStockStatus(s.getStockStatus());
         dto.setSourceType(s.getSourceType());
         dto.setSourceId(s.getSourceId());
         return dto;
@@ -40,7 +40,7 @@ public class StockMapper {
         s.setBatchNo(req.getBatchNo());
         s.setExpiryDate(req.getExpiryDate());
         s.setUnitCost(req.getUnitCost());
-        s.setStockStatus(StockStatus.valueOf(req.getStockStatus()));
+        s.setStockStatus(StockStatus.valueOf(req.getStockStatus().name()));
         s.setSourceType(req.getSourceType());
         s.setSourceId(req.getSourceId());
         return s;

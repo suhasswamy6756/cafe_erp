@@ -1,6 +1,7 @@
 package com.cafe.erp.modules.catalogue.item.entity;
 
 import com.cafe.erp.common.enums.FoodType;
+import com.cafe.erp.common.enums.ItemType;
 import com.cafe.erp.common.model.BaseEntity;
 import com.cafe.erp.modules.catalogue.category.entity.Category;
 import jakarta.persistence.*;
@@ -41,6 +42,10 @@ public class Item extends BaseEntity {
     @Column(name = "food_type")
     @Enumerated(EnumType.STRING)
     private FoodType foodType;
+
+    @Column(name = "item_type")
+    @Enumerated(EnumType.STRING)
+    private ItemType itemType;
 
 
     // Pricing

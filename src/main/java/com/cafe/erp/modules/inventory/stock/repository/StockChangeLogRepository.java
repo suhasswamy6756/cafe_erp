@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface StockChangeLogRepository extends JpaRepository<StockChangeLog, Long> {
 
-    List<StockChangeLog> findByItem_ItemId(Long itemId);
+    List<StockChangeLog> findByItem_Id(Long itemId);
 
     List<StockChangeLog> findByLocation_LocationId(Long locationId);
 

@@ -1,6 +1,7 @@
 package com.cafe.erp.modules.catalogue.item.dto;
 
 import com.cafe.erp.common.enums.FoodType;
+import com.cafe.erp.common.enums.ItemType;
 import lombok.Data;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class ItemRequestDTO {
 
     private String posCode;
     private FoodType foodType;
+    private ItemType itemType;
 
     // Pricing
     private Double basePrice;

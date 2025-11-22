@@ -9,12 +9,13 @@ import java.util.List;
 @Repository
 public interface StockValuationRepository extends JpaRepository<StockValuation, Long> {
 
-    List<StockValuation> findByItem_ItemId(Long itemId);
+    List<StockValuation> findByItem_Id(Long itemId);
 
     List<StockValuation> findByLocation_LocationId(Long locationId);
 
-    StockValuation findTopByItem_ItemIdAndLocation_LocationIdOrderByValuationDateDesc(
+    StockValuation findTopByItem_IdAndLocation_LocationIdOrderByValuationDateDesc(
             Long itemId, Long locationId
     );
 }
+
 
