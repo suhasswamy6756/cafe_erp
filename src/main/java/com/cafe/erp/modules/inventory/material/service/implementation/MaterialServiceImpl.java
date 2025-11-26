@@ -68,6 +68,8 @@ public class MaterialServiceImpl implements MaterialService {
         material.setUnitCost(request.getUnitCost());
         material.setReorderLevel(request.getReorderLevel());
         material.setIsActive(request.getIsActive());
+        material.setUpdatedAt(LocalDateTime.now());
+        material.setUpdatedBy(getCurrentUser());
 
         Material saved = materialRepo.save(material);
 

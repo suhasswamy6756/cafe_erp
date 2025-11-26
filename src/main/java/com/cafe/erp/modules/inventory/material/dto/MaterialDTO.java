@@ -4,6 +4,8 @@ package com.cafe.erp.modules.inventory.material.dto;
 import com.cafe.erp.common.enums.MaterialType;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class MaterialDTO {
     private Long materialId;
@@ -16,5 +18,9 @@ public class MaterialDTO {
     private Double unitCost;
     private Double reorderLevel;
     private Boolean isActive;
+    private LocalDateTime createdAt;
+    private String createdBy;
+    private LocalDateTime updatedAt;
+    private String updatedBy;
 }
 

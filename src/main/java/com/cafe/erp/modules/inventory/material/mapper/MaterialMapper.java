@@ -50,6 +50,10 @@ public class MaterialMapper {
         dto.setUnitCost(material.getUnitCost());
         dto.setReorderLevel(material.getReorderLevel());
         dto.setIsActive(material.getIsActive());
+        dto.setCreatedAt(material.getCreatedAt());
+        dto.setCreatedBy(material.getCreatedBy());
+        dto.setUpdatedAt(material.getUpdatedAt());
+        dto.setUpdatedBy(material.getUpdatedBy());
         return dto;
     }
 }
