@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
@@ -13,8 +14,10 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
     List<Stock> findByLocation_LocationIdAndIsDeletedFalse(Long locationId);
 
-    List<Stock> findByMaterial_MaterialIdAndLocation_LocationIdAndIsDeletedFalse(
+    Optional<Stock> findByMaterial_MaterialIdAndLocation_LocationIdAndIsDeletedFalse(
             Long materialId, Long locationId
     );
+
+
 }
 
