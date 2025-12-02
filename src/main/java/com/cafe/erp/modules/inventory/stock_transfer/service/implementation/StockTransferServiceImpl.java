@@ -150,6 +150,9 @@ public class StockTransferServiceImpl implements StockTransferService {
                         .material(item.getMaterial())
                         .location(transfer.getToLocation())
                         .uomCode(item.getUomCode())
+//                        .batchNo(transfer.getBatchNumber())
+//                        .expiryDate(transfer.getExpiryDate())
+                        .unitCost(item.getUnitCost())
                         .quantity(item.getIssuedQty())
                         .build();
             } else {
