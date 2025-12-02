@@ -111,6 +111,8 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
         dto.setAdjustmentType(adj.getAdjustmentType());
         dto.setQuantity(adj.getQuantity());
         dto.setUomCode(adj.getUomCode());
+        dto.setReason(adj.getReason());
+        dto.setAdjustedBy(adj.getAdjustedBy());
         dto.setAdjustedAt(adj.getAdjustedAt());
 
         return dto;
@@ -122,10 +124,13 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
             Material material = materialRepo.findById(adj.getMaterialId()).orElseThrow();
             StockAdjustmentResponseDTO dto = new StockAdjustmentResponseDTO();
             dto.setAdjustmentId(adj.getAdjustmentId());
+            dto.setUomCode(adj.getUomCode());
+            dto.setReason(adj.getReason());
             dto.setMaterialId(adj.getMaterialId());
             dto.setMaterialName(material.getName());
             dto.setAdjustmentType(adj.getAdjustmentType());
             dto.setQuantity(adj.getQuantity());
+            dto.setAdjustedBy(adj.getAdjustedBy());
             dto.setAdjustedAt(adj.getAdjustedAt());
             return dto;
         }).toList();
