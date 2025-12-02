@@ -2,7 +2,7 @@ package com.cafe.erp.modules.inventory.supplier.controller;
 
 import com.cafe.erp.common.model.ApiResponse;
 import com.cafe.erp.modules.inventory.supplier.dto.MaterialSupplierDTO;
-import com.cafe.erp.modules.inventory.supplier.dto.ItemSupplierRequest;
+import com.cafe.erp.modules.inventory.supplier.dto.MaterialSupplierRequest;
 import com.cafe.erp.modules.inventory.supplier.service.ItemSupplierService;
 
 import lombok.RequiredArgsConstructor;
@@ -14,12 +14,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/inventory/material-suppliers")
 @RequiredArgsConstructor
-public class ItemSupplierController {
+public class MaterialSupplierController {
 
     private final ItemSupplierService service;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<MaterialSupplierDTO>> assign(@RequestBody ItemSupplierRequest req) {
+    public ResponseEntity<ApiResponse<MaterialSupplierDTO>> assign(@RequestBody MaterialSupplierRequest req) {
        return ResponseEntity.ok(ApiResponse.success("Item supplier assigned successfully",service.assign(req), 201));
     }
 

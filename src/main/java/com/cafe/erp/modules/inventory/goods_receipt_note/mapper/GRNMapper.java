@@ -14,9 +14,9 @@ public class GRNMapper {
         if (entity == null) return null;
 
         return GRNItemDTO.builder()
-                .grnItemId(entity.getGrnItemId())
-//                .materialId(entity.getMaterialId())
-//                .materialName(entity.getMaterial().getName())
+                .grnMaterialId(entity.getGrnItemId())
+                .materialId(entity.getMaterial().getMaterialId())
+                .materialName(entity.getMaterial().getName())
                 .uomCode(entity.getUomCode())
                 .orderedQty(entity.getOrderedQty())
                 .deliveredQty(entity.getDeliveredQty())

@@ -77,7 +77,7 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
         sa.setAdjustmentType(req.getAdjustmentType().toUpperCase());
         sa.setReason(req.getReason());
         sa.setQuantity(req.getQuantity());
-        sa.setAdjustedBy(req.getAdjustedBy());
+        sa.setAdjustedBy(getCurrentUser());
         sa.setCreatedBy(getCurrentUser());
         sa.setCreatedAt(LocalDateTime.now());
 

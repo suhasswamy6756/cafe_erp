@@ -33,7 +33,7 @@ public class StockAdjustment extends BaseEntity {
     @Column(precision = 18, scale = 6, nullable = false)
     private BigDecimal quantity;
 
-    private Long adjustedBy;
+    private String adjustedBy;
 
     private LocalDateTime adjustedAt = LocalDateTime.now();
 }

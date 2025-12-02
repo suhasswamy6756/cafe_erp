@@ -1,13 +1,13 @@
 package com.cafe.erp.modules.inventory.supplier.service;
 
 import com.cafe.erp.modules.inventory.supplier.dto.MaterialSupplierDTO;
-import com.cafe.erp.modules.inventory.supplier.dto.ItemSupplierRequest;
+import com.cafe.erp.modules.inventory.supplier.dto.MaterialSupplierRequest;
 
 import java.util.List;
 
 public interface ItemSupplierService {
 
-    MaterialSupplierDTO assign(ItemSupplierRequest req);
+    MaterialSupplierDTO assign(MaterialSupplierRequest req);
 
     List<MaterialSupplierDTO> listByItem(Long itemId);
 

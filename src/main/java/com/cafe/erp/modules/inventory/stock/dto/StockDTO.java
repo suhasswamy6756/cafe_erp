@@ -1,5 +1,6 @@
 package com.cafe.erp.modules.inventory.stock.dto;
 
+import com.cafe.erp.common.enums.StockStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,5 +18,5 @@ public class StockDTO {
     private BigDecimal unitCost;
     private String batchNo;
     private LocalDate expiryDate;
-    private String stockStatus;
+    private StockStatus stockStatus;
 }

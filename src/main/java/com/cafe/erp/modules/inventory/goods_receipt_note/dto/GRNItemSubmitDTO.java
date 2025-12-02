@@ -1,5 +1,7 @@
 package com.cafe.erp.modules.inventory.goods_receipt_note.dto;
 
+import com.cafe.erp.common.enums.GRNAction;
+import com.cafe.erp.common.enums.GRNRejectionReason;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,6 +15,9 @@ public class GRNItemSubmitDTO {
     private BigDecimal rejectedQty;
     private String batchNo;
     private LocalDate expiryDate;
+
+    private GRNRejectionReason rejectionReason;
+    private GRNAction rejectionAction;
 }
 
 

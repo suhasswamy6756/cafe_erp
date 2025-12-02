@@ -4,15 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class MaterialSupplierDTO {
     private Long id;
-    private Long itemId;
-    private String itemName;
+    private Long materialId;
+    private String materialName;
     private Long supplierId;
     private String supplierName;
 //    private BigDecimal unitCost;

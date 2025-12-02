@@ -4,8 +4,8 @@ package com.cafe.erp.modules.inventory.supplier.dto;
 import lombok.Data;
 
 @Data
-public class ItemSupplierRequest {
-    private Long itemId;
+public class MaterialSupplierRequest {
+    private Long materialId;
     private Long supplierId;
 }
 

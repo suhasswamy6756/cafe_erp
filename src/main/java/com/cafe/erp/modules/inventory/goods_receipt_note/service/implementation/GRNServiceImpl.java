@@ -3,13 +3,9 @@ package com.cafe.erp.modules.inventory.goods_receipt_note.service.implementation
 import com.cafe.erp.common.enums.GRNStatus;
 import com.cafe.erp.common.enums.PurchaseStatus;
 import com.cafe.erp.common.exception.ResourceNotFoundException;
-
 import com.cafe.erp.modules.admin.location.entity.Location;
 import com.cafe.erp.modules.admin.location.repository.LocationsRepository;
-import com.cafe.erp.modules.inventory.goods_receipt_note.dto.GRNCreateRequestDTO;
-import com.cafe.erp.modules.inventory.goods_receipt_note.dto.GRNCreateResponseDTO;
-import com.cafe.erp.modules.inventory.goods_receipt_note.dto.GRNResponseDTO;
-import com.cafe.erp.modules.inventory.goods_receipt_note.dto.GRNSubmitRequestDTO;
+import com.cafe.erp.modules.inventory.goods_receipt_note.dto.*;
 import com.cafe.erp.modules.inventory.goods_receipt_note.entity.GRNHeader;
 import com.cafe.erp.modules.inventory.goods_receipt_note.entity.GRNItem;
 import com.cafe.erp.modules.inventory.goods_receipt_note.entity.GRNRejectionLog;
@@ -17,8 +13,6 @@ import com.cafe.erp.modules.inventory.goods_receipt_note.mapper.GRNMapper;
 import com.cafe.erp.modules.inventory.goods_receipt_note.repository.GRNHeaderRepository;
 import com.cafe.erp.modules.inventory.goods_receipt_note.repository.GRNItemRepository;
 import com.cafe.erp.modules.inventory.goods_receipt_note.repository.GRNRejectionLogRepository;
-
-
 import com.cafe.erp.modules.inventory.goods_receipt_note.service.GRNService;
 import com.cafe.erp.modules.inventory.material.repository.MaterialRepository;
 import com.cafe.erp.modules.inventory.purchase.entity.PurchaseOrder;
@@ -31,7 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.cafe.erp.common.utils.AuditUtils.getCurrentUser;
@@ -132,10 +127,15 @@ public class GRNServiceImpl implements GRNService {
             item.setTotalCost((item.getAcceptedQty()).multiply(item.getUnitCost()));
 
             if (item.getRejectedQty().compareTo(BigDecimal.ZERO) > 0) {
+                if (update.getRejectionReason() == null || update.getRejectionAction() == null) {
+                    throw new IllegalArgumentException("Rejection reason and action cannot be blank");
+                }
+
                 rejectRepo.save(GRNRejectionLog.builder()
                         .grnItem(item)
                         .rejectedQty(item.getRejectedQty())
-                        .reason(null)
+                        .reason(update.getRejectionReason())
+                        .actionTaken(update.getRejectionAction())
                         .actionTaken(null)
                         .build());
             }
@@ -181,11 +181,45 @@ public class GRNServiceImpl implements GRNService {
     }
 
     // -------------------- GET GRN --------------------
+
     @Override
     public GRNResponseDTO getGRN(Long grnId) {
-        return mapper.toResponse(grnRepo.findById(grnId)
-                .orElseThrow(() -> new ResourceNotFoundException("GRN not found")));
+        GRNHeader grn = grnRepo.findById(grnId)
+                .orElseThrow(() -> new ResourceNotFoundException("GRN not found"));
+
+        // Ensure lazy items load
+        List<GRNItem> items = grnItemRepo.findByGrnHeader_GrnId(grn.getGrnId());
+
+        GRNResponseDTO dto = new GRNResponseDTO();
+        dto.setGrnId(grn.getGrnId());
+        dto.setGrnNumber(grn.getGrnNumber());
+        dto.setInvoiceNumber(grn.getInvoiceNumber());
+        dto.setLocationId(grn.getLocationId());
+        dto.setSupplierId(grn.getSupplier().getSupplierId());
+        dto.setPurchaseOrderId(grn.getPurchaseOrder().getPoId());
+        dto.setStatus(grn.getStatus());
+        dto.setReceivedDate(grn.getReceivedDate());
+
+        dto.setItems(items.stream().map(item -> {
+            GRNItemDTO itemDTO = new GRNItemDTO();
+            itemDTO.setGrnMaterialId(item.getGrnItemId());
+            itemDTO.setMaterialId(item.getMaterial().getMaterialId());  // FIX
+            itemDTO.setMaterialName(item.getMaterial().getName());      // FIX
+            itemDTO.setUomCode(item.getUomCode());
+            itemDTO.setOrderedQty(item.getOrderedQty());
+            itemDTO.setDeliveredQty(item.getDeliveredQty());
+            itemDTO.setAcceptedQty(item.getAcceptedQty());
+            itemDTO.setRejectedQty(item.getRejectedQty());
+            itemDTO.setBatchNumber(item.getBatchNumber());
+            itemDTO.setExpiryDate(item.getExpiryDate());
+            itemDTO.setUnitCost(item.getUnitCost());
+            itemDTO.setTotalCost(item.getTotalCost());
+            return itemDTO;
+        }).toList());
+
+        return dto;
     }
+
 
     // -------------------- LIST GRN --------------------
     @Override

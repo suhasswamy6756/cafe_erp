@@ -14,6 +14,6 @@ public class StockAdjustmentResponseDTO {
     private String adjustmentType; // INCREASE/DECREASE
     private String reason;
     private BigDecimal quantity;
-    private Long adjustedBy;
+    private String adjustedBy;
     private LocalDateTime adjustedAt;
 }

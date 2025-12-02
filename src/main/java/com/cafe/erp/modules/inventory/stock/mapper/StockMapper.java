@@ -1,5 +1,6 @@
 package com.cafe.erp.modules.inventory.stock.mapper;
 
+import com.cafe.erp.common.enums.StockStatus;
 import com.cafe.erp.modules.admin.location.entity.Location;
 import com.cafe.erp.modules.inventory.material.entity.Material;
 import com.cafe.erp.modules.inventory.stock.dto.StockCreateRequest;
@@ -19,7 +20,7 @@ public class StockMapper {
                 .expiryDate(req.getExpiryDate())
                 .quantity(req.getQuantity())
                 .unitCost(req.getUnitCost())
-                .stockStatus(req.getStockStatus())
+                .stockStatus(StockStatus.valueOf(req.getStockStatus().name()))
                 .build();
     }
 
@@ -35,7 +36,7 @@ public class StockMapper {
         dto.setUnitCost(stock.getUnitCost());
         dto.setBatchNo(stock.getBatchNo());
         dto.setExpiryDate(stock.getExpiryDate());
-        dto.setStockStatus(stock.getStockStatus().name());
+        dto.setStockStatus(StockStatus.valueOf(stock.getStockStatus().name()));
         return dto;
     }
 }

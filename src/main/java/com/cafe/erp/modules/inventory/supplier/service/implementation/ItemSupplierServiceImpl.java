@@ -4,7 +4,7 @@ package com.cafe.erp.modules.inventory.supplier.service.implementation;
 import com.cafe.erp.modules.inventory.material.entity.Material;
 import com.cafe.erp.modules.inventory.material.repository.MaterialRepository;
 import com.cafe.erp.modules.inventory.supplier.dto.MaterialSupplierDTO;
-import com.cafe.erp.modules.inventory.supplier.dto.ItemSupplierRequest;
+import com.cafe.erp.modules.inventory.supplier.dto.MaterialSupplierRequest;
 import com.cafe.erp.modules.inventory.supplier.entity.MaterialSupplier;
 import com.cafe.erp.modules.inventory.supplier.entity.Supplier;
 import com.cafe.erp.modules.inventory.supplier.mapper.ItemSupplierMapper;
@@ -29,12 +29,12 @@ public class ItemSupplierServiceImpl implements ItemSupplierService {
     private final ItemSupplierMapper mapper;
 
     @Override
-    public MaterialSupplierDTO assign(ItemSupplierRequest req) {
+    public MaterialSupplierDTO assign(MaterialSupplierRequest req) {
 
         Supplier supplier = supplierRepo.findById(req.getSupplierId())
                 .orElseThrow(() -> new RuntimeException("Supplier not found"));
 
-        Material material = materialRepository.findById(req.getItemId())
+        Material material = materialRepository.findById(req.getMaterialId())
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
         MaterialSupplier e = new MaterialSupplier();
