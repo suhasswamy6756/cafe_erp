@@ -1,17 +1,21 @@
 package com.cafe.erp.modules.inventory.stock_transfer.dto;
 
 import com.cafe.erp.common.enums.StockTransferStatus;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class StockTransferResponseDTO {
     private Long transferId;
     private String transferNumber;
     private Long fromLocationId;
     private Long toLocationId;
+    private String remarks;
     private StockTransferStatus status;
     private List<StockTransferItemDTO> items;
 }
-

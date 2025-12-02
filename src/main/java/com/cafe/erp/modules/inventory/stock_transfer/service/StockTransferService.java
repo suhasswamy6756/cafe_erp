@@ -11,4 +11,10 @@ public interface StockTransferService {
     public StockTransferResponseDTO getStockTransfer(Long id);
 
     public List<StockTransferResponseDTO> getAllStockTransfers();
+
+    public StockTransferResponseDTO approveTransfer(Long id);
+    public StockTransferResponseDTO issueTransfer(Long id);
+    public StockTransferResponseDTO receiveTransfer(Long id);
+    public StockTransferResponseDTO cancelTransfer(Long id);
+    public StockTransferResponseDTO closeTransfer(Long id);
 }

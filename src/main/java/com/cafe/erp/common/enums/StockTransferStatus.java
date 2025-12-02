@@ -7,6 +7,8 @@ public enum StockTransferStatus {
     RECEIVED,
     COMPLETED,
     REJECTED,
-    CANCELLED
+    CANCELLED,
+    ISSUED,
+    CLOSED
 }
 

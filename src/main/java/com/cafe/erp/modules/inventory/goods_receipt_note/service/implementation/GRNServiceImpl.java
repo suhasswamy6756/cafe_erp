@@ -2,6 +2,7 @@ package com.cafe.erp.modules.inventory.goods_receipt_note.service.implementation
 
 import com.cafe.erp.common.enums.GRNStatus;
 import com.cafe.erp.common.enums.PurchaseStatus;
+import com.cafe.erp.common.enums.StockStatus;
 import com.cafe.erp.common.exception.ResourceNotFoundException;
 import com.cafe.erp.modules.admin.location.entity.Location;
 import com.cafe.erp.modules.admin.location.repository.LocationsRepository;
@@ -160,20 +161,36 @@ public class GRNServiceImpl implements GRNService {
         // Apply stock update
         grn.getItems().forEach(item -> {
 
-            Stock stock = Stock.builder()
-                    .material(item.getMaterial())
-                    .location(locationRepo.findById(grn.getLocationId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Location not found")))
-                    .batchNo(item.getBatchNumber())
-                    .expiryDate(item.getExpiryDate())
-                    .quantity(item.getAcceptedQty())
-                    .unitCost(item.getUnitCost())
-                    .uomCode(item.getUomCode())
-//                    .sourceType("GRN")
-//                    .sourceId(grn.getGrnId())
-                    .build();
+            var location = locationRepo.findById(grn.getLocationId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Location not found"));
 
-            stockRepo.save(stock);
+            Stock existingStock = stockRepo
+                    .findByMaterial_MaterialIdAndLocation_LocationIdAndIsDeletedFalseAndBatchNoAndUnitCost(
+                            item.getMaterial().getMaterialId(),
+                            location.getLocationId(),
+                            item.getBatchNumber(),
+                            item.getUnitCost()
+                    ).orElse(null);
+
+            if (existingStock == null) {
+                // Create New Batch Entry
+                existingStock = Stock.builder()
+                        .material(item.getMaterial())
+                        .location(location)
+                        .batchNo(item.getBatchNumber())
+                        .expiryDate(item.getExpiryDate())
+                        .unitCost(item.getUnitCost())
+                        .uomCode(item.getUomCode())
+                        .quantity(item.getAcceptedQty())
+                        .stockStatus(StockStatus.AVAILABLE)
+                        .build();
+            } else {
+                // Update Existing Batch Entry Quantity
+                existingStock.setQuantity(existingStock.getQuantity().add(item.getAcceptedQty()));
+            }
+
+            stockRepo.save(existingStock);
+
         });
 
         grn.setStatus(GRNStatus.APPROVED);

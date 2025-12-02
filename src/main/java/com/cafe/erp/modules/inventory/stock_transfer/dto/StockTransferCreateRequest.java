@@ -1,15 +1,25 @@
 package com.cafe.erp.modules.inventory.stock_transfer.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class StockTransferCreateRequest {
+
+    @NotNull(message = "From Location is required")
     private Long fromLocationId;
+
+    @NotNull(message = "To Location is required")
     private Long toLocationId;
+
     private String remarks;
-    private List<StockTransferItemDTO> items;
+
+    @NotNull(message = "Transfer items are required")
+    private List<StockTransferItemCreateDTO> items;
 }

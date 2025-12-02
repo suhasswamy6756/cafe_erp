@@ -1,11 +1,11 @@
 package com.cafe.erp.modules.inventory.stock_transfer.entity;
 
-import com.cafe.erp.common.model.BaseEntity;
 import com.cafe.erp.modules.inventory.material.entity.Material;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "stock_transfer_items")
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StockTransferItem extends BaseEntity {
+public class StockTransferItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +30,19 @@ public class StockTransferItem extends BaseEntity {
 
     private String uomCode;
 
-    private BigDecimal requestedQty;
-    private BigDecimal shippedQty;
-    private BigDecimal receivedQty;
+    private BigDecimal requestedQty;   // User wants
+
+    private BigDecimal issuedQty;      // Deducted from stock at a source
+
+    private BigDecimal shippedQty;     // Optional tracking (same as issued unless damaged in transit)
+
+    private BigDecimal receivedQty;    // Stock added to destination
+
     private BigDecimal unitCost;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    private String createdBy;
+    private String updatedBy;
 }
 
