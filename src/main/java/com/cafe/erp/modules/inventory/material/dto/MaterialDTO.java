@@ -4,6 +4,7 @@ package com.cafe.erp.modules.inventory.material.dto;
 import com.cafe.erp.common.enums.MaterialType;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,7 +16,7 @@ public class MaterialDTO {
     private String categoryName;
     private String uomCode;
     private MaterialType materialType;
-    private Double unitCost;
+    private BigDecimal unitCost;
     private Double reorderLevel;
     private Boolean isActive;
     private LocalDateTime createdAt;

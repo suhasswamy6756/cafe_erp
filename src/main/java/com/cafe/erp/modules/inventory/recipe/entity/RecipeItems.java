@@ -1,11 +1,9 @@
 package com.cafe.erp.modules.inventory.recipe.entity;
 
 
+import com.cafe.erp.modules.inventory.material.entity.Material;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class RecipeItems {
 
     @Id
@@ -23,11 +22,13 @@ public class RecipeItems {
     @Column(name="item_id")
     private Long itemId;
 
-    @Column(name="version_id")
-    private Long versionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "version_id", nullable = false)
+    private RecipeVersions version;
 
-    @Column(name="material_id")
-    private Long materialId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "material_id", nullable = false)
+    private Material material;
 
     @Column(name="quantity")
     private BigDecimal quantity;
@@ -36,10 +37,10 @@ public class RecipeItems {
     private String uomCode;
 
     @Column(name = "cost_per_unit")
-    private String costPerUnit;
+    private BigDecimal costPerUnit;
 
     @Column(name = "total_cost")
-    private String totalCost;
+    private BigDecimal totalCost;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

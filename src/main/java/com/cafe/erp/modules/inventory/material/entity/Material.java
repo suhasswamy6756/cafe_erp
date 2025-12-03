@@ -7,6 +7,8 @@ import com.cafe.erp.modules.inventory.categories.entity.InventoryCategory;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "materials")
 @Getter
@@ -37,7 +39,7 @@ public class Material extends BaseEntity {
     private MaterialType materialType;
 
     @Column(name = "unit_cost")
-    private Double unitCost;
+    private BigDecimal unitCost;
 
     @Column(name = "reorder_level")
     private Double reorderLevel;

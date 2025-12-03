@@ -2,10 +2,7 @@ package com.cafe.erp.modules.inventory.recipe.entity;
 
 import com.cafe.erp.common.model.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -14,6 +11,7 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RecipeVersions extends BaseEntity {
 
     @Id
@@ -21,8 +19,9 @@ public class RecipeVersions extends BaseEntity {
     @Column(name = "version_id")
     private Long versionId;
 
-    @Column(name = "recipe_id")
-    private Long recipeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_id", nullable = false)
+    private Recipes recipe;
 
     @Column(name = "version_number")
     private Long versionNumber;

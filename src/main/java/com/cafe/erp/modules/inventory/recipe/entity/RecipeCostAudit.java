@@ -2,10 +2,7 @@ package com.cafe.erp.modules.inventory.recipe.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class RecipeCostAudit {
 
     @Id
@@ -23,17 +21,17 @@ public class RecipeCostAudit {
     @Column(name = "audit_id")
     private Long auditId;
 
-    @Column(name = "version_id")
-    private Long versionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "version_id", nullable = false)
+    private RecipeVersions versions;
 
     @Column(name = "total_cost")
-    private Long recipeId;
+    private BigDecimal totalCost;
 
     @Column(name = "cost_per_output_unit")
     private BigDecimal costPerOutputUnit;
 
     @Column(name = "calculated_at")
     private LocalDateTime calculatedAt;
-
 
 }

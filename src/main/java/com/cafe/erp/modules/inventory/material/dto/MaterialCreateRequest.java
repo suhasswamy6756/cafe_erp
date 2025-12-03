@@ -4,6 +4,8 @@ package com.cafe.erp.modules.inventory.material.dto;
 import com.cafe.erp.common.enums.MaterialType;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class MaterialCreateRequest {
     private String name;
@@ -11,7 +13,7 @@ public class MaterialCreateRequest {
     private Long categoryId;
     private String uomCode;
     private MaterialType materialType;
-    private Double unitCost;
+    private BigDecimal unitCost;
     private Double reorderLevel;
     private Boolean isActive;
 }

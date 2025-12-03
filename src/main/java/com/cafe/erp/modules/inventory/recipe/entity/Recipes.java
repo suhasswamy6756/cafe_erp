@@ -22,8 +22,9 @@ public class Recipes extends BaseEntity {
     @Column(name = "recipe_name")
     private String recipeName;
 
-    @Column(name = "recipe_category_id")
-    private String recipeCategoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_category_id", nullable = false)
+    private RecipeCategory recipeCategory;
 
     @Column(name = "output_unit")
     private String outputUnit;
