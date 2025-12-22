@@ -17,6 +17,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -103,11 +104,11 @@ public class RecipeServiceImpl implements RecipeService {
         List<RecipeVersionDTO> versionDTOs = versions.stream().map(v -> {
             List<RecipeItems> items = itemRepo.findByVersion_VersionId(v.getVersionId());
 
-            RecipeCostAudit latestAudit =
+            Optional<RecipeCostAudit> latestAudit =
                     auditRepo.findTopByVersions_VersionIdOrderByCalculatedAtDesc(v.getVersionId());
 
-            BigDecimal total = latestAudit != null ? latestAudit.getTotalCost() : calcTotalCost(items);
-            BigDecimal costPerOutput = latestAudit != null ? latestAudit.getCostPerOutputUnit()
+            BigDecimal total = latestAudit != null ? latestAudit.get().getTotalCost() : calcTotalCost(items);
+            BigDecimal costPerOutput = latestAudit != null ? latestAudit.get().getCostPerOutputUnit()
                     : calcCostPerOutput(total, recipe.getOutputQuantity());
 
             return mapper.toVersionDTO(v, total, costPerOutput, items);
@@ -136,11 +137,11 @@ public class RecipeServiceImpl implements RecipeService {
 
             List<RecipeVersionDTO> versionDTOs = versions.stream().map(v -> {
                 List<RecipeItems> items = itemRepo.findByVersion_VersionId(v.getVersionId());
-                RecipeCostAudit audit =
+                Optional<RecipeCostAudit> audit =
                         auditRepo.findTopByVersions_VersionIdOrderByCalculatedAtDesc(v.getVersionId());
 
-                BigDecimal total = audit != null ? audit.getTotalCost() : calcTotalCost(items);
-                BigDecimal costPerOutput = audit != null ? audit.getCostPerOutputUnit()
+                BigDecimal total = audit != null ? audit.get().getTotalCost() : calcTotalCost(items);
+                BigDecimal costPerOutput = audit != null ? audit.get().getCostPerOutputUnit()
                         : calcCostPerOutput(total, recipe.getOutputQuantity());
 
                 return mapper.toVersionDTO(v, total, costPerOutput, items);
@@ -316,11 +317,11 @@ public class RecipeServiceImpl implements RecipeService {
         List<RecipeItems> items = itemRepo.findByVersion_VersionId(versionId);
         Recipes recipe = version.getRecipe();
 
-        RecipeCostAudit audit =
+        Optional<RecipeCostAudit> audit =
                 auditRepo.findTopByVersions_VersionIdOrderByCalculatedAtDesc(versionId);
 
-        BigDecimal total = audit != null ? audit.getTotalCost() : calcTotalCost(items);
-        BigDecimal costPerOutput = audit != null ? audit.getCostPerOutputUnit()
+        BigDecimal total = audit != null ? audit.get().getTotalCost() : calcTotalCost(items);
+        BigDecimal costPerOutput = audit != null ? audit.get().getCostPerOutputUnit()
                 : calcCostPerOutput(total, recipe.getOutputQuantity());
 
         return mapper.toVersionDTO(version, total, costPerOutput, items);
