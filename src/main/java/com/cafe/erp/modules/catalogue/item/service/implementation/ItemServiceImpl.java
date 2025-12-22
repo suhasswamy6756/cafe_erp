@@ -13,6 +13,8 @@ import com.cafe.erp.modules.catalogue.item.repository.ItemRepository;
 import com.cafe.erp.modules.catalogue.item.service.ItemService;
 import com.cafe.erp.modules.catalogue.modifier_group.entity.ModifierGroups;
 import com.cafe.erp.modules.catalogue.modifier_group.repository.ModifierGroupRepository;
+import com.cafe.erp.modules.inventory.recipe.entity.Recipes;
+import com.cafe.erp.modules.inventory.recipe.repository.RecipeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class ItemServiceImpl implements ItemService {
     private final CategoryRepository categoryRepo;
     private final ModifierGroupRepository groupRepo;
     private final ItemModifierGroupRepository itemModRepo;
+    private final RecipeRepository recipeRepo;
 
     @Transactional
     @Override
@@ -41,8 +44,7 @@ public class ItemServiceImpl implements ItemService {
             category = categoryRepo.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         }
 
-        Item item = Item.builder().name(dto.getName()).shortName(dto.getShortName()).handle(dto.getHandle()).itemType(ItemType.valueOf(dto.getItemType().name()))
-.foodType(dto.getFoodType()).posCode(dto.getPosCode()).description(dto.getDescription()).category(category).basePrice(dto.getBasePrice()).dineInPrice(dto.getDineInPrice()).takeawayPrice(dto.getTakeawayPrice()).deliveryPrice(dto.getDeliveryPrice()).aggregatorPrice(dto.getAggregatorPrice()).markupType(dto.getMarkupType()).markupValue(dto.getMarkupValue()).isActive(dto.getIsActive()).build();
+        Item item = Item.builder().name(dto.getName()).shortName(dto.getShortName()).handle(dto.getHandle()).itemType(ItemType.valueOf(dto.getItemType().name())).recipe(recipeRepo.findById(dto.getRecipeId()).orElseThrow(() -> new ResourceNotFoundException("Recipe not found"))).foodType(dto.getFoodType()).posCode(dto.getPosCode()).description(dto.getDescription()).category(category).basePrice(dto.getBasePrice()).dineInPrice(dto.getDineInPrice()).takeawayPrice(dto.getTakeawayPrice()).deliveryPrice(dto.getDeliveryPrice()).aggregatorPrice(dto.getAggregatorPrice()).markupType(dto.getMarkupType()).markupValue(dto.getMarkupValue()).isActive(dto.getIsActive()).build();
 
         Item saved = itemRepo.save(item);
 
@@ -163,7 +165,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<Long> modifierGroupIds = itemModRepo.findAllByItemAndIsDeletedFalse(item).stream().map(m -> m.getModifierGroup().getId()).toList();
 
-        return ItemResponseDTO.builder().id(item.getId()).name(item.getName()).shortName(item.getShortName()).itemType(ItemType.valueOf(item.getItemType().name())).
+        return ItemResponseDTO.builder().id(item.getId()).name(item.getName()).shortName(item.getShortName()).itemType(ItemType.valueOf(item.getItemType().name())).recipeId(item.getRecipe().getRecipeId()).
                 foodType(item.getFoodType()).posCode(item.getPosCode()).handle(item.getHandle()).description(item.getDescription()).categoryId(item.getCategory() != null ? item.getCategory().getId() : null).basePrice(item.getBasePrice()).dineInPrice(item.getDineInPrice()).takeawayPrice(item.getTakeawayPrice()).deliveryPrice(item.getDeliveryPrice()).aggregatorPrice(item.getAggregatorPrice()).markupType(item.getMarkupType()).markupValue(item.getMarkupValue()).isActive(item.getIsActive()).modifierGroupIds(modifierGroupIds).createdBy(item.getCreatedBy()).updatedBy(item.getUpdatedBy()).createdAt(item.getCreatedAt()).updatedAt(item.getUpdatedAt()).build();
     }
 
@@ -177,6 +179,9 @@ public class ItemServiceImpl implements ItemService {
         // Category lookup should happen outside
         Category category = categoryRepo.findById(request.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         item.setCategory(category);
+
+        Recipes recipe = recipeRepo.findById(request.getRecipeId()).orElseThrow(() -> new ResourceNotFoundException("Recipe not found"));
+        item.setRecipe(recipe);
 
         item.setBasePrice(request.getBasePrice());
         item.setDineInPrice(request.getDineInPrice());

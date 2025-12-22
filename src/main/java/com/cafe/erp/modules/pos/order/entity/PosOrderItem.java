@@ -23,8 +23,8 @@ public class PosOrderItem {
     @JoinColumn(name = "order_id")
     private PosOrder order;
 
-    private Long recipeId;
-    private String recipeName;
+    private Long itemId;
+    private String itemName;
 
     private BigDecimal quantity;
     private BigDecimal price;
