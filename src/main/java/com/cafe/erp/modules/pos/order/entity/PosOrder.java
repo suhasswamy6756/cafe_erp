@@ -4,7 +4,6 @@ import com.cafe.erp.common.model.BaseEntity;
 import com.cafe.erp.modules.admin.location.entity.Location;
 import jakarta.persistence.*;
 import lombok.*;
-import org.flywaydb.core.internal.util.Locations;
 
 import java.math.BigDecimal;
 import java.util.List;

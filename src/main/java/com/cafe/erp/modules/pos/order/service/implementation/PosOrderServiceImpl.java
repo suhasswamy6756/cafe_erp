@@ -232,5 +232,141 @@ public class PosOrderServiceImpl implements PosOrderService {
         order.setStatus("CANCELLED");
         orderRepo.save(order);
     }
+
+    @Transactional
+    @Override
+    public PosOrderResponseDTO addItem(Long orderId, PosOrderItemRequest req) {
+
+        PosOrder order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        if (!order.getStatus().equals("PLACED"))
+            throw new IllegalStateException("Cannot modify order after checkout");
+
+        Recipes recipe = recipeRepo.findById(req.getRecipeId())
+                .orElseThrow(() -> new ResourceNotFoundException("Recipe not found"));
+
+        BigDecimal qty = req.getQuantity();
+        if (qty.compareTo(BigDecimal.ZERO) <= 0)
+            throw new IllegalArgumentException("Quantity must be > 0");
+
+        RecipeVersions version = versionRepo
+                .findByRecipeAndIsDefaultTrueAndStatus(recipe, "ACTIVE")
+                .orElseThrow(() -> new IllegalStateException("No active recipe version"));
+
+        BigDecimal costPerUnit = recipeCostAuditRepo
+                .findTopByVersions_VersionIdOrderByCalculatedAtDesc(version.getVersionId())
+                .map(RecipeCostAudit::getCostPerOutputUnit)
+                .orElseThrow(() -> new IllegalStateException("Recipe cost not found"));
+
+        BigDecimal lineAmount = costPerUnit.multiply(qty);
+
+        PosOrderItem item = PosOrderItem.builder()
+                .order(order)
+                .recipeId(recipe.getRecipeId())
+                .recipeName(recipe.getRecipeName())
+                .quantity(qty)
+                .price(costPerUnit)
+                .costPrice(costPerUnit)
+                .totalPrice(lineAmount)
+                .build();
+
+        itemRepo.save(item);
+
+        order.setTotalAmount(order.getTotalAmount().add(lineAmount));
+        orderRepo.save(order);
+
+        return getOrder(orderId);
+    }
+
+    @Transactional
+    @Override
+    public PosOrderResponseDTO removeItem(Long orderId, Long orderItemId) {
+
+        PosOrder order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        if (!order.getStatus().equals("PLACED"))
+            throw new IllegalStateException("Cannot modify order after checkout");
+
+        PosOrderItem item = itemRepo.findById(orderItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order item not found"));
+
+        if (!item.getOrder().getOrderId().equals(orderId))
+            throw new IllegalStateException("Item does not belong to this order");
+
+        order.setTotalAmount(order.getTotalAmount().subtract(item.getTotalPrice()));
+
+        itemRepo.delete(item);
+        orderRepo.save(order);
+
+        return getOrder(orderId);
+    }
+
+    @Transactional
+    @Override
+    public PosOrderResponseDTO checkout(PosCheckoutRequest request) {
+
+        PosOrder order = orderRepo.findById(request.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        if (!order.getStatus().equals("PLACED"))
+            throw new IllegalStateException("Order already processed");
+
+        Location location = order.getLocation();
+
+        for (PosOrderItem item : order.getItems()) {
+
+            Recipes recipe = recipeRepo.findById(item.getRecipeId())
+                    .orElseThrow(() -> new RuntimeException("Recipe missing"));
+
+            RecipeVersions version = versionRepo
+                    .findByRecipeAndIsDefaultTrueAndStatus(recipe, "ACTIVE")
+                    .orElseThrow(() -> new RuntimeException("Recipe version missing"));
+
+            List<RecipeItems> recipeItems =
+                    recipeItemRepo.findByVersion_VersionId(version.getVersionId());
+
+            for (RecipeItems ri : recipeItems) {
+
+                BigDecimal usedQty = ri.getQuantity()
+                        .multiply(item.getQuantity())
+                        .divide(recipe.getOutputQuantity(), 6, RoundingMode.HALF_UP);
+
+                Stock stock = stockRepo
+                        .findByMaterial_MaterialIdAndLocation_LocationIdAndIsDeletedFalse(
+                                ri.getMaterial().getMaterialId(),
+                                location.getLocationId()
+                        )
+                        .orElseThrow(() ->
+                                new IllegalStateException("Stock not found for " + ri.getMaterial().getName()));
+
+                if (stock.getQuantity().compareTo(usedQty) < 0)
+                    throw new IllegalStateException("Insufficient stock for " + ri.getMaterial().getName());
+
+                stock.setQuantity(stock.getQuantity().subtract(usedQty));
+                stockRepo.save(stock);
+
+                consumptionRepo.save(
+                        PosConsumption.builder()
+                                .order(order)
+                                .orderItem(item)
+                                .materialId(ri.getMaterial().getMaterialId())
+                                .materialName(ri.getMaterial().getName())
+                                .usedQty(usedQty)
+                                .uomCode(ri.getUomCode())
+                                .build()
+                );
+            }
+        }
+
+        order.setPaymentMode(request.getPaymentMode());
+        order.setStatus("COMPLETED");
+
+        orderRepo.save(order);
+
+        return getOrder(order.getOrderId());
+    }
+
 }
 
