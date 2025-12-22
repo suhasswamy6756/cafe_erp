@@ -1,6 +1,7 @@
 package com.cafe.erp.modules.pos.order.entity;
 
 import com.cafe.erp.common.model.BaseEntity;
+import com.cafe.erp.modules.admin.location.entity.Location;
 import jakarta.persistence.*;
 import lombok.*;
 import org.flywaydb.core.internal.util.Locations;
@@ -26,7 +27,7 @@ public class PosOrder extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
-    private Locations location;
+    private Location location;
 
     private BigDecimal totalAmount;
     private BigDecimal totalTax;
