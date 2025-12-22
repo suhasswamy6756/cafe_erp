@@ -62,7 +62,7 @@ public class PosOrderServiceImpl implements PosOrderService {
                 .invoiceNumber("POS-" + UUID.randomUUID().toString().substring(0, 8))
                 .location(location)
                 .status("PLACED")
-                .paymentMode(null)
+                .paymentMode(request.getPaymentMode())
                 .totalAmount(BigDecimal.ZERO)
                 .totalTax(BigDecimal.ZERO)
                 .remarks(request.getRemarks())
@@ -95,6 +95,7 @@ public class PosOrderServiceImpl implements PosOrderService {
                     .itemName(item.getName())
                     .quantity(qty)
                     .price(price)
+                    .costPrice(item.getBasePrice())
                     .totalPrice(lineTotal)
                     .build();
 
