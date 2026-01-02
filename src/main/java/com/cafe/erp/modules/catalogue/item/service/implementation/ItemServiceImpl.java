@@ -6,9 +6,12 @@ import com.cafe.erp.modules.catalogue.category.entity.Category;
 import com.cafe.erp.modules.catalogue.category.repository.CategoryRepository;
 import com.cafe.erp.modules.catalogue.item.dto.ItemRequestDTO;
 import com.cafe.erp.modules.catalogue.item.dto.ItemResponseDTO;
+import com.cafe.erp.modules.catalogue.item.dto.UpdateStoreItemPriceDTO;
 import com.cafe.erp.modules.catalogue.item.entity.Item;
 import com.cafe.erp.modules.catalogue.item.entity.ItemModifierGroup;
+import com.cafe.erp.modules.catalogue.item.entity.ItemPrice;
 import com.cafe.erp.modules.catalogue.item.repository.ItemModifierGroupRepository;
+import com.cafe.erp.modules.catalogue.item.repository.ItemPriceRepository;
 import com.cafe.erp.modules.catalogue.item.repository.ItemRepository;
 import com.cafe.erp.modules.catalogue.item.service.ItemService;
 import com.cafe.erp.modules.catalogue.modifier_group.entity.ModifierGroups;
@@ -34,6 +37,7 @@ public class ItemServiceImpl implements ItemService {
     private final ModifierGroupRepository groupRepo;
     private final ItemModifierGroupRepository itemModRepo;
     private final RecipeRepository recipeRepo;
+    private final ItemPriceRepository itemPriceRepo;
 
     @Transactional
     @Override
@@ -135,6 +139,23 @@ public class ItemServiceImpl implements ItemService {
 
         return mapToResponse(item);
     }
+
+    @Override
+    public UpdateStoreItemPriceDTO updateItemPrice(Long id, UpdateStoreItemPriceDTO updateStoreItemPriceDTO) {
+
+        ItemPrice itemPrice = itemPriceRepo.findByItemIdAndLocationId(id, updateStoreItemPriceDTO.getLocationId());
+
+        itemPrice.setDineInPrice(updateStoreItemPriceDTO.getPrice());
+
+        itemPriceRepo.save(itemPrice);
+
+        return UpdateStoreItemPriceDTO.builder()
+                .itemId(itemPrice.getItem().getId())
+                .locationId(itemPrice.getLocation().getLocationId())
+                .price(itemPrice.getDineInPrice())
+                .build();
+    }
+
 
     @Transactional
     @Override

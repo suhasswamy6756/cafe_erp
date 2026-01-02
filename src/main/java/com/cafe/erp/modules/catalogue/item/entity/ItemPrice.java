@@ -8,7 +8,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "item_prices")
+@Table(
+        name = "item_prices",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"item_id", "location_id"})
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,26 +25,37 @@ public class ItemPrice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "item_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    // -------- Item --------
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
-    @JoinColumn(name = "location_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    // -------- Location --------
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
+    // -------- Prices --------
+    @Column(name = "dine_in_price", precision = 10, scale = 2)
     private BigDecimal dineInPrice;
 
+    @Column(name = "takeaway_price", precision = 10, scale = 2)
     private BigDecimal takeawayPrice;
 
+    @Column(name = "delivery_price", precision = 10, scale = 2)
     private BigDecimal deliveryPrice;
 
+    @Column(name = "aggregator_price", precision = 10, scale = 2)
     private BigDecimal aggregatorPrice;
 
-    private boolean isActive;
+    // -------- Flags --------
+    @Column(name = "is_active")
+    private boolean isActive = true;
 
+    // -------- Audit --------
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-
 }
