@@ -6,6 +6,7 @@ import com.cafe.erp.modules.admin.location.entity.Location;
 import com.cafe.erp.modules.admin.location.repository.LocationsRepository;
 import com.cafe.erp.modules.catalogue.item.entity.Item;
 import com.cafe.erp.modules.catalogue.item.repository.ItemRepository;
+import com.cafe.erp.modules.inventory.recipe.entity.RecipeCostAudit;
 import com.cafe.erp.modules.inventory.recipe.entity.RecipeItems;
 import com.cafe.erp.modules.inventory.recipe.entity.RecipeVersions;
 import com.cafe.erp.modules.inventory.recipe.entity.Recipes;
@@ -61,53 +62,108 @@ public class PosOrderServiceImpl implements PosOrderService {
         PosOrder order = PosOrder.builder()
                 .invoiceNumber("POS-" + UUID.randomUUID().toString().substring(0, 8))
                 .location(location)
-                .status("PLACED")
                 .paymentMode(request.getPaymentMode())
+                .remarks(request.getRemarks())
+                .status("PLACED")
                 .totalAmount(BigDecimal.ZERO)
                 .totalTax(BigDecimal.ZERO)
-                .remarks(request.getRemarks())
                 .build();
 
         orderRepo.save(order);
 
-        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal orderTotal = BigDecimal.ZERO;
         List<PosOrderItem> orderItems = new ArrayList<>();
 
-        for (PosOrderItemRequest req : request.getItems()) {
+        for (PosOrderItemRequest itemReq : request.getItems()) {
 
-            Item item = itemRepo.findById(req.getItemId())
+            // 1️⃣ Load Item (POS item)
+            Item item = itemRepo.findById(itemReq.getItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
-
-            if (item.getRecipe() == null)
-                throw new IllegalStateException("Item has no recipe: " + item.getName());
-
-            BigDecimal qty = req.getQuantity();
+            BigDecimal qty = itemReq.getQuantity();
             if (qty.compareTo(BigDecimal.ZERO) <= 0)
                 throw new IllegalArgumentException("Quantity must be > 0");
 
-            BigDecimal price = item.getBasePrice();
-            BigDecimal lineTotal = price.multiply(qty);
+            // 2️⃣ Selling price (from catalogue)
+            BigDecimal sellingPrice = item.getDineInPrice() != null
+                    ? item.getDineInPrice()
+                    : item.getBasePrice();
 
+            BigDecimal lineTotal = sellingPrice.multiply(qty);
+
+            BigDecimal costPrice = BigDecimal.ZERO;
+
+            // 3️⃣ If item has recipe → calculate cost & deduct stock
+            if (item.getRecipe() != null) {
+
+                Recipes recipe = item.getRecipe();
+
+                RecipeVersions version = versionRepo
+                        .findByRecipeAndIsDefaultTrueAndStatus(recipe, "ACTIVE")
+                        .orElseThrow(() -> new IllegalStateException("No active recipe"));
+
+                costPrice = recipeCostAuditRepo
+                        .findTopByVersions_VersionIdOrderByCalculatedAtDesc(version.getVersionId())
+                        .map(RecipeCostAudit::getCostPerOutputUnit)
+                        .orElseThrow(() -> new IllegalStateException("Recipe cost missing"));
+
+                // ---------- STOCK DEDUCTION ----------
+                List<RecipeItems> recipeItems =
+                        recipeItemRepo.findByVersion_VersionId(version.getVersionId());
+
+                for (RecipeItems ri : recipeItems) {
+
+                    BigDecimal usedQty = ri.getQuantity()
+                            .multiply(qty)
+                            .divide(recipe.getOutputQuantity(), 6, RoundingMode.HALF_UP);
+
+                    Stock stock = stockRepo
+                            .findByMaterial_MaterialIdAndLocation_LocationIdAndIsDeletedFalse(
+                                    ri.getMaterial().getMaterialId(),
+                                    location.getLocationId()
+                            )
+                            .orElseThrow(() ->
+                                    new IllegalStateException("No stock for " + ri.getMaterial().getName()));
+
+                    if (stock.getQuantity().compareTo(usedQty) < 0)
+                        throw new IllegalStateException("Insufficient stock for " + ri.getMaterial().getName());
+
+                    stock.setQuantity(stock.getQuantity().subtract(usedQty));
+                    stockRepo.save(stock);
+
+                    consumptionRepo.save(
+                            PosConsumption.builder()
+                                    .order(order)
+                                    .materialId(ri.getMaterial().getMaterialId())
+                                    .materialName(ri.getMaterial().getName())
+                                    .usedQty(usedQty)
+                                    .uomCode(ri.getUomCode())
+                                    .build()
+                    );
+                }
+            }
+
+            // 4️⃣ Save POS order item
             PosOrderItem orderItem = PosOrderItem.builder()
                     .order(order)
                     .itemId(item.getId())
                     .itemName(item.getName())
                     .quantity(qty)
-                    .price(price)
-                    .costPrice(item.getBasePrice())
+                    .price(sellingPrice)
+                    .costPrice(costPrice)
                     .totalPrice(lineTotal)
                     .build();
 
             posOrderItemRepository.save(orderItem);
             orderItems.add(orderItem);
-            total = total.add(lineTotal);
+
+            orderTotal = orderTotal.add(lineTotal);
         }
 
         order.setItems(orderItems);
-        order.setTotalAmount(total);
-
+        order.setTotalAmount(orderTotal);
         orderRepo.save(order);
+
         return getOrder(order.getOrderId());
     }
 

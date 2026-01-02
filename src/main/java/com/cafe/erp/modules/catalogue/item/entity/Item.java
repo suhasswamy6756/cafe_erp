@@ -57,7 +57,7 @@ public class Item extends BaseEntity {
 
     // Pricing
     private BigDecimal basePrice;
-    private Double dineInPrice;
+    private BigDecimal dineInPrice;
     private Double takeawayPrice;
     private Double deliveryPrice;
     private Double aggregatorPrice;
