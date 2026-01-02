@@ -56,14 +56,14 @@ public class Item extends BaseEntity {
 
 
     // Pricing
-    private BigDecimal basePrice;
-    private BigDecimal dineInPrice;
-    private Double takeawayPrice;
-    private Double deliveryPrice;
-    private Double aggregatorPrice;
-
-    private String markupType;   // NONE, FLAT, PERCENTAGE
-    private Double markupValue;
+//    private BigDecimal basePrice;
+//    private BigDecimal dineInPrice;
+//    private Double takeawayPrice;
+//    private Double deliveryPrice;
+//    private Double aggregatorPrice;
+//
+//    private String markupType;   // NONE, FLAT, PERCENTAGE
+//    private Double markupValue;
 
     private Boolean isActive;
 }

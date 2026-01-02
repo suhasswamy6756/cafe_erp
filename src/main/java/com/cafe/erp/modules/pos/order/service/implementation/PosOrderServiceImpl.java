@@ -5,6 +5,8 @@ import com.cafe.erp.common.exception.ResourceNotFoundException;
 import com.cafe.erp.modules.admin.location.entity.Location;
 import com.cafe.erp.modules.admin.location.repository.LocationsRepository;
 import com.cafe.erp.modules.catalogue.item.entity.Item;
+import com.cafe.erp.modules.catalogue.item.entity.ItemPrice;
+import com.cafe.erp.modules.catalogue.item.repository.ItemPriceRepository;
 import com.cafe.erp.modules.catalogue.item.repository.ItemRepository;
 import com.cafe.erp.modules.inventory.recipe.entity.RecipeCostAudit;
 import com.cafe.erp.modules.inventory.recipe.entity.RecipeItems;
@@ -47,6 +49,7 @@ public class PosOrderServiceImpl implements PosOrderService {
     private final RecipeItemRepository recipeItemRepo;
     private final RecipeCostAuditRepository recipeCostAuditRepo;
     private final ItemRepository itemRepo;
+    private final ItemPriceRepository itemPriceRepo;
 
     private final StockRepository stockRepo;
     private final LocationsRepository locationRepo;
@@ -80,14 +83,14 @@ public class PosOrderServiceImpl implements PosOrderService {
             Item item = itemRepo.findById(itemReq.getItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
+            ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(item.getId(), location.getLocationId());
+
             BigDecimal qty = itemReq.getQuantity();
             if (qty.compareTo(BigDecimal.ZERO) <= 0)
                 throw new IllegalArgumentException("Quantity must be > 0");
 
             // 2️⃣ Selling price (from catalogue)
-            BigDecimal sellingPrice = item.getDineInPrice() != null
-                    ? item.getDineInPrice()
-                    : item.getBasePrice();
+            BigDecimal sellingPrice = itemPrice.getDineInPrice();
 
             BigDecimal lineTotal = sellingPrice.multiply(qty);
 
@@ -257,6 +260,8 @@ public class PosOrderServiceImpl implements PosOrderService {
         Item catalogueItem = itemRepo.findById(req.getItemId())
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
+        ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(catalogueItem.getId(), order.getLocation().getLocationId());
+
         if (catalogueItem.getRecipe() == null)
             throw new IllegalStateException("Item has no recipe linked");
 
@@ -264,7 +269,7 @@ public class PosOrderServiceImpl implements PosOrderService {
         if (qty.compareTo(BigDecimal.ZERO) <= 0)
             throw new IllegalArgumentException("Quantity must be greater than zero");
 
-        BigDecimal sellingPrice = catalogueItem.getBasePrice();
+        BigDecimal sellingPrice = itemPrice.getDineInPrice();
         BigDecimal lineTotal = sellingPrice.multiply(qty);
 
         PosOrderItem orderItem = PosOrderItem.builder()

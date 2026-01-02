@@ -48,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
             category = categoryRepo.findById(dto.getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
         }
 
-        Item item = Item.builder().name(dto.getName()).shortName(dto.getShortName()).handle(dto.getHandle()).itemType(ItemType.valueOf(dto.getItemType().name())).recipe(recipeRepo.findById(dto.getRecipeId()).orElseThrow(() -> new ResourceNotFoundException("Recipe not found"))).foodType(dto.getFoodType()).posCode(dto.getPosCode()).description(dto.getDescription()).category(category).basePrice(dto.getBasePrice()).dineInPrice(dto.getDineInPrice()).takeawayPrice(dto.getTakeawayPrice()).deliveryPrice(dto.getDeliveryPrice()).aggregatorPrice(dto.getAggregatorPrice()).markupType(dto.getMarkupType()).markupValue(dto.getMarkupValue()).isActive(dto.getIsActive()).build();
+        Item item = Item.builder().name(dto.getName()).shortName(dto.getShortName()).handle(dto.getHandle()).itemType(ItemType.valueOf(dto.getItemType().name())).recipe(recipeRepo.findById(dto.getRecipeId()).orElseThrow(() -> new ResourceNotFoundException("Recipe not found"))).foodType(dto.getFoodType()).posCode(dto.getPosCode()).description(dto.getDescription()).category(category).isActive(dto.getIsActive()).build();
 
         Item saved = itemRepo.save(item);
 
@@ -143,7 +143,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public UpdateStoreItemPriceDTO updateItemPrice(Long id, UpdateStoreItemPriceDTO updateStoreItemPriceDTO) {
 
-        ItemPrice itemPrice = itemPriceRepo.findByItemIdAndLocationId(id, updateStoreItemPriceDTO.getLocationId());
+        ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(id, updateStoreItemPriceDTO.getLocationId());
 
         itemPrice.setDineInPrice(updateStoreItemPriceDTO.getPrice());
 
@@ -187,7 +187,7 @@ public class ItemServiceImpl implements ItemService {
         List<Long> modifierGroupIds = itemModRepo.findAllByItemAndIsDeletedFalse(item).stream().map(m -> m.getModifierGroup().getId()).toList();
 
         return ItemResponseDTO.builder().id(item.getId()).name(item.getName()).shortName(item.getShortName()).itemType(ItemType.valueOf(item.getItemType().name())).recipeId(item.getRecipe().getRecipeId()).
-                foodType(item.getFoodType()).posCode(item.getPosCode()).handle(item.getHandle()).description(item.getDescription()).categoryId(item.getCategory() != null ? item.getCategory().getId() : null).basePrice(item.getBasePrice()).dineInPrice(item.getDineInPrice()).takeawayPrice(item.getTakeawayPrice()).deliveryPrice(item.getDeliveryPrice()).aggregatorPrice(item.getAggregatorPrice()).markupType(item.getMarkupType()).markupValue(item.getMarkupValue()).isActive(item.getIsActive()).modifierGroupIds(modifierGroupIds).createdBy(item.getCreatedBy()).updatedBy(item.getUpdatedBy()).createdAt(item.getCreatedAt()).updatedAt(item.getUpdatedAt()).build();
+                foodType(item.getFoodType()).posCode(item.getPosCode()).handle(item.getHandle()).description(item.getDescription()).categoryId(item.getCategory() != null ? item.getCategory().getId() : null).isActive(item.getIsActive()).modifierGroupIds(modifierGroupIds).createdBy(item.getCreatedBy()).updatedBy(item.getUpdatedBy()).createdAt(item.getCreatedAt()).updatedAt(item.getUpdatedAt()).build();
     }
 
     private void mapFields(Item item, ItemRequestDTO request) {
@@ -204,18 +204,18 @@ public class ItemServiceImpl implements ItemService {
         Recipes recipe = recipeRepo.findById(request.getRecipeId()).orElseThrow(() -> new ResourceNotFoundException("Recipe not found"));
         item.setRecipe(recipe);
 
-        item.setBasePrice(request.getBasePrice());
-        item.setDineInPrice(request.getDineInPrice());
-        item.setTakeawayPrice(request.getTakeawayPrice());
-        item.setDeliveryPrice(request.getDeliveryPrice());
-        item.setAggregatorPrice(request.getAggregatorPrice());
+//        item.setBasePrice(request.getBasePrice());
+//        item.setDineInPrice(request.getDineInPrice());
+//        item.setTakeawayPrice(request.getTakeawayPrice());
+//        item.setDeliveryPrice(request.getDeliveryPrice());
+//        item.setAggregatorPrice(request.getAggregatorPrice());
 
         item.setPosCode(request.getPosCode());
         item.setFoodType(request.getFoodType());
         item.setItemType(ItemType.valueOf(request.getItemType().name()));
 
-        item.setMarkupType(request.getMarkupType());
-        item.setMarkupValue(request.getMarkupValue());
+//        item.setMarkupType(request.getMarkupType());
+//        item.setMarkupValue(request.getMarkupValue());
 
         item.setIsActive(request.getIsActive());
 

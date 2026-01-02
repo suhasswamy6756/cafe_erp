@@ -4,5 +4,5 @@ import com.cafe.erp.modules.catalogue.item.entity.ItemPrice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ItemPriceRepository extends JpaRepository<ItemPrice, Long> {
-    ItemPrice findByItemIdAndLocationId(Long itemId, Long locationId);
+    ItemPrice findByItem_IdAndLocation_LocationId(Long itemId, Long locationId);
 }
