@@ -1,9 +1,14 @@
 package com.cafe.erp.modules.catalogue.item.entity;
 
+import com.cafe.erp.common.enums.FoodType;
+import com.cafe.erp.common.enums.ItemType;
 import com.cafe.erp.common.model.BaseEntity;
 import com.cafe.erp.modules.catalogue.category.entity.Category;
+import com.cafe.erp.modules.inventory.recipe.entity.Recipes;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "items")
@@ -34,8 +39,24 @@ public class Item extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column(name = "pos_code")
+    private String posCode;
+
+    @Column(name = "food_type")
+    @Enumerated(EnumType.STRING)
+    private FoodType foodType;
+
+    @Column(name = "item_type")
+    @Enumerated(EnumType.STRING)
+    private ItemType itemType;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_id")
+    private Recipes recipe;
+
+
     // Pricing
-    private Double basePrice;
+    private BigDecimal basePrice;
     private Double dineInPrice;
     private Double takeawayPrice;
     private Double deliveryPrice;

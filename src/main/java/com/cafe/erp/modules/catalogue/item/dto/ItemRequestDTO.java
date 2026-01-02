@@ -1,7 +1,10 @@
 package com.cafe.erp.modules.catalogue.item.dto;
 
+import com.cafe.erp.common.enums.FoodType;
+import com.cafe.erp.common.enums.ItemType;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -14,8 +17,14 @@ public class ItemRequestDTO {
 
     private Long categoryId;
 
+    private String posCode;
+    private FoodType foodType;
+    private ItemType itemType;
+
+    private Long recipeId;
+
     // Pricing
-    private Double basePrice;
+    private BigDecimal basePrice;
     private Double dineInPrice;
     private Double takeawayPrice;
     private Double deliveryPrice;

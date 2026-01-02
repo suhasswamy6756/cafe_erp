@@ -42,4 +42,8 @@ public class Tax extends BaseEntity {
 
     @Column(name = "is_active")
     private Boolean isActive;
+
+    public Tax(Long taxId) {
+        this.taxId = taxId;
+    }
 }

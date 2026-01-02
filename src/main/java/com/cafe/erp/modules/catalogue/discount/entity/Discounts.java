@@ -41,5 +41,10 @@ public class Discounts extends BaseEntity {
 
     @Column(columnDefinition = "boolean default true")
     private Boolean isActive;
+
+    public Discounts(Long discountId) {
+        this.discountId = discountId;
+    }
+
 }
 
