@@ -3,6 +3,7 @@ package com.cafe.erp.modules.catalogue.item.controller;
 import com.cafe.erp.common.model.ApiResponse;
 import com.cafe.erp.modules.catalogue.item.dto.ItemRequestDTO;
 import com.cafe.erp.modules.catalogue.item.dto.ItemResponseDTO;
+import com.cafe.erp.modules.catalogue.item.dto.UpdateStoreItemPriceDTO;
 import com.cafe.erp.modules.catalogue.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,13 @@ public class ItemController {
     @PutMapping("/{id}")
     public ItemResponseDTO updateItem(@PathVariable Long id, @RequestBody ItemRequestDTO dto) {
         return itemService.updateItem(id, dto);
+    }
+
+    @PostMapping("/{id}/price")
+    public ResponseEntity<ApiResponse<UpdateStoreItemPriceDTO>> updateItemPrice(@PathVariable Long id, @RequestBody UpdateStoreItemPriceDTO dto) {
+        return ResponseEntity.ok(
+                ApiResponse.success("Item price updated successfully", itemService.updateItemPrice(id, dto), 200)
+        );
     }
 
     @DeleteMapping("/{id}")

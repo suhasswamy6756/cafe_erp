@@ -29,14 +29,14 @@ public class ItemResponseDTO {
     private Long recipeId;
 
     // Pricing
-    private BigDecimal basePrice;
-    private Double dineInPrice;
-    private Double takeawayPrice;
-    private Double deliveryPrice;
-    private Double aggregatorPrice;
-
-    private String markupType;
-    private Double markupValue;
+//    private BigDecimal basePrice;
+//    private BigDecimal dineInPrice;
+//    private Double takeawayPrice;
+//    private Double deliveryPrice;
+//    private Double aggregatorPrice;
+//
+//    private String markupType;
+//    private Double markupValue;
 
     private Boolean isActive;
 

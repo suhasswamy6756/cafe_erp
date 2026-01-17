@@ -2,6 +2,7 @@ package com.cafe.erp.modules.catalogue.item.service;
 
 import com.cafe.erp.modules.catalogue.item.dto.ItemRequestDTO;
 import com.cafe.erp.modules.catalogue.item.dto.ItemResponseDTO;
+import com.cafe.erp.modules.catalogue.item.dto.UpdateStoreItemPriceDTO;
 
 import java.util.List;
 
@@ -13,6 +14,9 @@ public interface ItemService {
     ItemResponseDTO createItem(ItemRequestDTO itemRequestDTO);
 
     ItemResponseDTO updateItem(Long id, ItemRequestDTO itemRequestDTO);
+
+    UpdateStoreItemPriceDTO updateItemPrice(Long id, UpdateStoreItemPriceDTO itemRequestDTO);
+
 
     void deleteItem(Long id);
 
