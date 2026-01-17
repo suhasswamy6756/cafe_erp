@@ -1,5 +1,6 @@
 package com.cafe.erp.modules.inventory.stock_transfer.service.implementation;
 
+import com.cafe.erp.common.enums.StockStatus;
 import com.cafe.erp.common.enums.StockTransferStatus;
 import com.cafe.erp.modules.admin.location.repository.LocationsRepository;
 import com.cafe.erp.modules.inventory.material.entity.Material;
@@ -157,6 +158,7 @@ public class StockTransferServiceImpl implements StockTransferService {
                         .build();
             } else {
                 destStock.setQuantity(destStock.getQuantity().add(item.getIssuedQty()));
+                destStock.setStockStatus(StockStatus.valueOf(StockStatus.AVAILABLE.name()));
             }
 
             stockRepository.save(destStock);
