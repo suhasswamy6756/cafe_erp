@@ -32,5 +32,6 @@ public class PosConsumption {
 
     private BigDecimal usedQty;
     private String uomCode;
+
 }
 

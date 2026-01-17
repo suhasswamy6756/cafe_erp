@@ -24,7 +24,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -150,6 +149,9 @@ public class ItemServiceImpl implements ItemService {
             Long itemId,
             UpdateStoreItemPriceDTO dto
     ) {
+        System.out.println("printing some data");
+        System.out.println("dto: " + dto);
+        System.out.println("itemId: " + itemId);
 
         // 1️⃣ Validate input
         if (dto.getLocationId() == null) {
@@ -163,12 +165,14 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new ResourceNotFoundException("Location not found"));
 
         // 2️⃣ Get existing or create new
-        ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(itemId, dto.getLocationId());
-        if (itemPrice == null) {
-            itemPrice = new ItemPrice();
-            itemPrice.setItem(item);
-            itemPrice.setLocation(location);
-        }
+        ItemPrice itemPrice = itemPriceRepo
+                .findByItem_IdAndLocation_LocationId(itemId, dto.getLocationId())
+                .orElseGet(() -> {
+                    ItemPrice ip = new ItemPrice();
+                    ip.setItem(item);
+                    ip.setLocation(location);
+                    return ip;
+                });
 
 
         // 3️⃣ Update prices
@@ -176,7 +180,6 @@ public class ItemServiceImpl implements ItemService {
         itemPrice.setTakeawayPrice(dto.getTakeawayPrice());
         itemPrice.setDeliveryPrice(dto.getDeliveryPrice());
         itemPrice.setAggregatorPrice(dto.getAggregatorPrice());
-//        itemPrice.s(dto.getIsActive() != null ? dto.getIsActive() : true);
 
         itemPriceRepo.save(itemPrice);
 
