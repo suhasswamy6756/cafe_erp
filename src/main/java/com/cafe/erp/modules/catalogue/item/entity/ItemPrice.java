@@ -1,5 +1,6 @@
 package com.cafe.erp.modules.catalogue.item.entity;
 
+import com.cafe.erp.common.model.BaseEntity;
 import com.cafe.erp.modules.admin.location.entity.Location;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,8 +19,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ItemPrice {
+public class ItemPrice extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,16 +36,16 @@ public class ItemPrice {
     private Location location;
 
     // -------- Prices --------
-    @Column(name = "dine_in_price", precision = 10, scale = 2)
+    @Column(name = "dine_in_price")
     private BigDecimal dineInPrice;
 
-    @Column(name = "takeaway_price", precision = 10, scale = 2)
+    @Column(name = "takeaway_price")
     private BigDecimal takeawayPrice;
 
-    @Column(name = "delivery_price", precision = 10, scale = 2)
+    @Column(name = "delivery_price")
     private BigDecimal deliveryPrice;
 
-    @Column(name = "aggregator_price", precision = 10, scale = 2)
+    @Column(name = "aggregator_price")
     private BigDecimal aggregatorPrice;
 
     // -------- Flags --------
@@ -53,9 +53,9 @@ public class ItemPrice {
     private boolean isActive = true;
 
     // -------- Audit --------
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+//    @Column(name = "created_at", updatable = false)
+//    private LocalDateTime createdAt;
+//
+//    @Column(name = "updated_at")
+//    private LocalDateTime updatedAt;
 }

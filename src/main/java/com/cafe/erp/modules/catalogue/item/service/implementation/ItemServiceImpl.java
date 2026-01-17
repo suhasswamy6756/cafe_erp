@@ -2,6 +2,8 @@ package com.cafe.erp.modules.catalogue.item.service.implementation;
 
 import com.cafe.erp.common.enums.ItemType;
 import com.cafe.erp.common.exception.ResourceNotFoundException;
+import com.cafe.erp.modules.admin.location.entity.Location;
+import com.cafe.erp.modules.admin.location.repository.LocationsRepository;
 import com.cafe.erp.modules.catalogue.category.entity.Category;
 import com.cafe.erp.modules.catalogue.category.repository.CategoryRepository;
 import com.cafe.erp.modules.catalogue.item.dto.ItemRequestDTO;
@@ -22,6 +24,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +41,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemModifierGroupRepository itemModRepo;
     private final RecipeRepository recipeRepo;
     private final ItemPriceRepository itemPriceRepo;
+    private final LocationsRepository locationRepo;
 
     @Transactional
     @Override
@@ -141,18 +145,49 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public UpdateStoreItemPriceDTO updateItemPrice(Long id, UpdateStoreItemPriceDTO updateStoreItemPriceDTO) {
+    @Transactional
+    public UpdateStoreItemPriceDTO updateItemPrice(
+            Long itemId,
+            UpdateStoreItemPriceDTO dto
+    ) {
 
-        ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(id, updateStoreItemPriceDTO.getLocationId());
+        // 1️⃣ Validate input
+        if (dto.getLocationId() == null) {
+            throw new IllegalArgumentException("LocationId is required");
+        }
 
-        itemPrice.setDineInPrice(updateStoreItemPriceDTO.getPrice());
+        Item item = itemRepo.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
+
+        Location location = locationRepo.findById(dto.getLocationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found"));
+
+        // 2️⃣ Get existing or create new
+        ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(itemId, dto.getLocationId());
+        if (itemPrice == null) {
+            itemPrice = new ItemPrice();
+            itemPrice.setItem(item);
+            itemPrice.setLocation(location);
+        }
+
+
+        // 3️⃣ Update prices
+        itemPrice.setDineInPrice(dto.getDineInPrice());
+        itemPrice.setTakeawayPrice(dto.getTakeawayPrice());
+        itemPrice.setDeliveryPrice(dto.getDeliveryPrice());
+        itemPrice.setAggregatorPrice(dto.getAggregatorPrice());
+//        itemPrice.s(dto.getIsActive() != null ? dto.getIsActive() : true);
 
         itemPriceRepo.save(itemPrice);
 
+        // 4️⃣ Return response
         return UpdateStoreItemPriceDTO.builder()
-                .itemId(itemPrice.getItem().getId())
-                .locationId(itemPrice.getLocation().getLocationId())
-                .price(itemPrice.getDineInPrice())
+                .locationId(dto.getLocationId())
+                .dineInPrice(itemPrice.getDineInPrice())
+                .takeawayPrice(itemPrice.getTakeawayPrice())
+                .deliveryPrice(itemPrice.getDeliveryPrice())
+                .aggregatorPrice(itemPrice.getAggregatorPrice())
+                .isActive(item.getIsActive())
                 .build();
     }
 
