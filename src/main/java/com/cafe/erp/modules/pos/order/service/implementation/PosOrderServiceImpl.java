@@ -59,9 +59,11 @@ public class PosOrderServiceImpl implements PosOrderService {
     @Override
     public PosOrderResponseDTO createOrder(PosOrderCreateRequest request) {
 
+        // 1️⃣ Validate & load store / location
         Location location = locationRepo.findById(request.getLocationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Location not found"));
 
+        // 2️⃣ Create POS order header (no items yet)
         PosOrder order = PosOrder.builder()
                 .invoiceNumber("POS-" + UUID.randomUUID().toString().substring(0, 8))
                 .location(location)
@@ -72,45 +74,77 @@ public class PosOrderServiceImpl implements PosOrderService {
                 .totalTax(BigDecimal.ZERO)
                 .build();
 
+        // Persist order first so it gets an ID
         orderRepo.save(order);
 
         BigDecimal orderTotal = BigDecimal.ZERO;
         List<PosOrderItem> orderItems = new ArrayList<>();
 
+        // 3️⃣ Process each ordered item
         for (PosOrderItemRequest itemReq : request.getItems()) {
 
-            // 1️⃣ Load Item (POS item)
+            // 3.1 Load item (product)
             Item item = itemRepo.findById(itemReq.getItemId())
                     .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
-            ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(item.getId(), location.getLocationId());
+            // 3.2 Load price for item + location
+            ItemPrice itemPrice =
+                    itemPriceRepo
+                            .findByItem_IdAndLocation_LocationId(
+                                    item.getId(),
+                                    location.getLocationId()
+                            )
+                            .orElseThrow(() ->
+                                    new ResourceNotFoundException("Item price not found")
+                            );
 
+            // 3.3 Validate quantity
             BigDecimal qty = itemReq.getQuantity();
-            if (qty.compareTo(BigDecimal.ZERO) <= 0)
+            if (qty.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new IllegalArgumentException("Quantity must be > 0");
+            }
 
-            // 2️⃣ Selling price (from catalogue)
+            // 3.4 Selling price (dine-in for POS)
             BigDecimal sellingPrice = itemPrice.getDineInPrice();
-
             BigDecimal lineTotal = sellingPrice.multiply(qty);
 
+            // 3.5 Create & save order item FIRST (needed for FK in consumption)
             BigDecimal costPrice = BigDecimal.ZERO;
 
-            // 3️⃣ If item has recipe → calculate cost & deduct stock
+            PosOrderItem orderItem = PosOrderItem.builder()
+                    .order(order)
+                    .itemId(item.getId())
+                    .itemName(item.getName())
+                    .quantity(qty)
+                    .price(sellingPrice)
+                    .costPrice(costPrice) // updated later if recipe exists
+                    .totalPrice(lineTotal)
+                    .build();
+
+            posOrderItemRepository.save(orderItem);
+            orderItems.add(orderItem);
+
+            // 3.6 If item has recipe → calculate cost & deduct stock
             if (item.getRecipe() != null) {
 
                 Recipes recipe = item.getRecipe();
 
+                // Get active default recipe version
                 RecipeVersions version = versionRepo
                         .findByRecipeAndIsDefaultTrueAndStatus(recipe, "ACTIVE")
-                        .orElseThrow(() -> new IllegalStateException("No active recipe"));
+                        .orElseThrow(() ->
+                                new IllegalStateException("No active recipe")
+                        );
 
+                // Fetch latest calculated cost
                 costPrice = recipeCostAuditRepo
                         .findTopByVersions_VersionIdOrderByCalculatedAtDesc(version.getVersionId())
                         .map(RecipeCostAudit::getCostPerOutputUnit)
-                        .orElseThrow(() -> new IllegalStateException("Recipe cost missing"));
+                        .orElseThrow(() ->
+                                new IllegalStateException("Recipe cost missing")
+                        );
 
-                // ---------- STOCK DEDUCTION ----------
+                // Deduct material stock & record consumption
                 List<RecipeItems> recipeItems =
                         recipeItemRepo.findByVersion_VersionId(version.getVersionId());
 
@@ -126,17 +160,26 @@ public class PosOrderServiceImpl implements PosOrderService {
                                     location.getLocationId()
                             )
                             .orElseThrow(() ->
-                                    new IllegalStateException("No stock for " + ri.getMaterial().getName()));
+                                    new IllegalStateException(
+                                            "No stock for " + ri.getMaterial().getName()
+                                    )
+                            );
 
-                    if (stock.getQuantity().compareTo(usedQty) < 0)
-                        throw new IllegalStateException("Insufficient stock for " + ri.getMaterial().getName());
+                    if (stock.getQuantity().compareTo(usedQty) < 0) {
+                        throw new IllegalStateException(
+                                "Insufficient stock for " + ri.getMaterial().getName()
+                        );
+                    }
 
+                    // Update stock
                     stock.setQuantity(stock.getQuantity().subtract(usedQty));
                     stockRepo.save(stock);
 
+                    // Save material consumption (FK-safe)
                     consumptionRepo.save(
                             PosConsumption.builder()
                                     .order(order)
+                                    .orderItem(orderItem)
                                     .materialId(ri.getMaterial().getMaterialId())
                                     .materialName(ri.getMaterial().getName())
                                     .usedQty(usedQty)
@@ -144,29 +187,22 @@ public class PosOrderServiceImpl implements PosOrderService {
                                     .build()
                     );
                 }
+
+                // Update cost price on order item
+                orderItem.setCostPrice(costPrice);
+                posOrderItemRepository.save(orderItem);
             }
 
-            // 4️⃣ Save POS order item
-            PosOrderItem orderItem = PosOrderItem.builder()
-                    .order(order)
-                    .itemId(item.getId())
-                    .itemName(item.getName())
-                    .quantity(qty)
-                    .price(sellingPrice)
-                    .costPrice(costPrice)
-                    .totalPrice(lineTotal)
-                    .build();
-
-            posOrderItemRepository.save(orderItem);
-            orderItems.add(orderItem);
-
+            // 3.7 Accumulate order total
             orderTotal = orderTotal.add(lineTotal);
         }
 
+        // 4️⃣ Finalize order totals and items
         order.setItems(orderItems);
         order.setTotalAmount(orderTotal);
         orderRepo.save(order);
 
+        // 5️⃣ Return full order response
         return getOrder(order.getOrderId());
     }
 
@@ -260,7 +296,9 @@ public class PosOrderServiceImpl implements PosOrderService {
         Item catalogueItem = itemRepo.findById(req.getItemId())
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found"));
 
-        ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(catalogueItem.getId(), order.getLocation().getLocationId());
+        ItemPrice itemPrice = itemPriceRepo.findByItem_IdAndLocation_LocationId(catalogueItem.getId(), order.getLocation().getLocationId()).orElseThrow(
+                ()-> new ResourceNotFoundException("Item price not found")
+        );
 
         if (catalogueItem.getRecipe() == null)
             throw new IllegalStateException("Item has no recipe linked");
