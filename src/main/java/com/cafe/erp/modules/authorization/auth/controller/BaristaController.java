@@ -32,7 +32,7 @@ public class BaristaController {
 
 
     @PostMapping("/register")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<Baristas>> registerBarista(@RequestBody Baristas barista) {
         return ResponseEntity.ok(ApiResponse.success("Barista registered successfully", baristasService.registerBarista(barista), 201));
     }
