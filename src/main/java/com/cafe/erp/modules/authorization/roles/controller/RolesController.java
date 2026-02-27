@@ -17,7 +17,7 @@ public class RolesController {
     @Autowired
     private RolesService rolesService;
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CHEF')")
+//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_CHEF')")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<Roles>> registerRole(@RequestBody Roles role) {
         return ResponseEntity.ok(ApiResponse.success("Role registered successfully", rolesService.registerRole(role), 201));
