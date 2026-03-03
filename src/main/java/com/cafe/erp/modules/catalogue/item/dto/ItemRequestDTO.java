@@ -1,0 +1,40 @@
+package com.cafe.erp.modules.catalogue.item.dto;
+
+import com.cafe.erp.common.enums.FoodType;
+import com.cafe.erp.common.enums.ItemType;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
+public class ItemRequestDTO {
+
+    private String name;
+    private String shortName;
+    private String handle;
+    private String description;
+
+    private Long categoryId;
+
+    private String posCode;
+    private FoodType foodType;
+    private ItemType itemType;
+
+    private Long recipeId;
+
+    // Pricing
+//    private BigDecimal basePrice;
+//    private BigDecimal dineInPrice;
+//    private Double takeawayPrice;
+//    private Double deliveryPrice;
+//    private Double aggregatorPrice;
+
+//    private String markupType;       // NONE / FLAT / PERCENTAGE
+//    private Double markupValue;
+
+    private Boolean isActive;
+
+    // List of modifier groups to attach to item
+    private List<Long> modifierGroupIds;
+}
