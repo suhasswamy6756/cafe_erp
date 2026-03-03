@@ -39,7 +39,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     @Override
     public List<MaterialDTO> getAll() {
-        return materialRepo.findByIsDeletedFalse()
+        return materialRepo.findAllActiveWithCategory()
                 .stream()
                 .map(mapper::toDTO)
                 .toList();
