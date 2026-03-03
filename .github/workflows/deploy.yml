@@ -30,7 +30,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT }}
           source: "target/erp-0.0.1-SNAPSHOT.jar"
-          target: "/opt/erp/"
+          target: "/home/ubuntu/"
           overwrite: true
 
       - name: Deploy on EC2
@@ -41,5 +41,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT }}
           script: |
+            sudo mv /home/ubuntu/target/erp-0.0.1-SNAPSHOT.jar /opt/erp/erp.jar
+            sudo chown erpuser:erpuser /opt/erp/erp.jar
             sudo systemctl restart erp
             sudo systemctl status erp
+            ls -l /opt/erp/
