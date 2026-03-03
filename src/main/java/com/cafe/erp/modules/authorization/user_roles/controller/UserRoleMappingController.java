@@ -18,13 +18,13 @@ public class UserRoleMappingController {
     private final UserRoleMappingService service;
 
     @PostMapping("/assign")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<UserRolesMapping>> assignRole(@RequestParam Long userId, @RequestParam Long roleId, @RequestParam Long assignedBy) {
         return ResponseEntity.ok(ApiResponse.success("Role assigned successfully", service.assignRole(userId, roleId), 200));
     }
 
     @PostMapping("/revoke")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<String>> revokeRole(@RequestParam Long userId, @RequestParam Long roleId) {
         service.revokeRole(userId, roleId);
         return ResponseEntity.ok(ApiResponse.success("Role revoked successfully", null, 200));

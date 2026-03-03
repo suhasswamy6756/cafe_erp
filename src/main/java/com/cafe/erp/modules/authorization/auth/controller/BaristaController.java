@@ -21,7 +21,7 @@ public class BaristaController {
     private BaristasService baristasService;
 
     @GetMapping("/baristas")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<List<BaristaResponseDTO>>> getAllBaristas() {
         return ResponseEntity.ok(ApiResponse.success(
                 "Baristas fetched successfully",
