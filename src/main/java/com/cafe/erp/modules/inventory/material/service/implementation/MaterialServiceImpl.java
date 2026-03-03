@@ -10,6 +10,7 @@ import com.cafe.erp.modules.inventory.material.entity.Material;
 import com.cafe.erp.modules.inventory.material.mapper.MaterialMapper;
 import com.cafe.erp.modules.inventory.material.repository.MaterialRepository;
 import com.cafe.erp.modules.inventory.material.service.MaterialService;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -46,8 +47,9 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MaterialDTO get(Long id) {
-        Material m = materialRepo.findById(id)
+        Material m = materialRepo.findByMaterialIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Material not found"));
 
         return mapper.toDTO(m);
