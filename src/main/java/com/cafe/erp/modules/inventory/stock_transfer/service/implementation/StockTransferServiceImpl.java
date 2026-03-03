@@ -17,6 +17,7 @@ import com.cafe.erp.modules.inventory.stock_transfer.repository.StockTransferRep
 import com.cafe.erp.modules.inventory.stock_transfer.service.StockTransferService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ import static com.cafe.erp.common.utils.AuditUtils.getCurrentUser;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class StockTransferServiceImpl implements StockTransferService {
 
     private final StockTransferRepository stockTransferRepository;

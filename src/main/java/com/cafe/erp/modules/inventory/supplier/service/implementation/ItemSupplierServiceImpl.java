@@ -13,6 +13,7 @@ import com.cafe.erp.modules.inventory.supplier.repository.SupplierRepository;
 import com.cafe.erp.modules.inventory.supplier.service.ItemSupplierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +22,7 @@ import static com.cafe.erp.common.utils.AuditUtils.getCurrentUser;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemSupplierServiceImpl implements ItemSupplierService {
 
     private final MaterialSupplierRepository repo;

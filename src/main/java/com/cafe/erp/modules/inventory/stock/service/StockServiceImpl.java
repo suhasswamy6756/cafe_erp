@@ -11,11 +11,13 @@ import com.cafe.erp.modules.inventory.stock.mapper.StockMapper;
 import com.cafe.erp.modules.inventory.stock.repository.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StockServiceImpl implements StockService {
 
     private final StockRepository stockRepo;
