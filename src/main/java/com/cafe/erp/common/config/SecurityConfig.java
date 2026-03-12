@@ -49,6 +49,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/actuator/prometheus",
+                                "/api/test/hello",
                                 "/actuator/health").permitAll()
                         .requestMatchers("/api/register", "/api/login", "/api/refresh").permitAll()
                         .requestMatchers("/api/baristas").hasRole("ADMIN")
