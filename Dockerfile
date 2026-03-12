@@ -11,7 +11,7 @@ COPY target/*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8000
 
 # Run application
 ENTRYPOINT ["java","-jar","app.jar"]
