@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/actuator/prometheus",
                                 "/api/test/hello",
-                                "/actuator/health").permitAll()
+                                "/actuator/health",
                                 "/health").permitAll()
                         .requestMatchers("/api/register", "/api/login", "/api/refresh").permitAll()
                         .requestMatchers("/api/baristas").hasRole("ADMIN")
