@@ -49,7 +49,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/webjars/**",
                                 "/actuator/prometheus",
-                                "/api/test/hello",
+                                "/api/test/**",
                                 "/actuator/health",
                                 "/health").permitAll()
                         .requestMatchers("/api/register", "/api/login", "/api/refresh").permitAll()
