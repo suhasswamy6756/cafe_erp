@@ -11,6 +11,6 @@ public class TestController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "last manual docker deployment test";
+        return "last manual docker deployment test-2";
     }
 }
