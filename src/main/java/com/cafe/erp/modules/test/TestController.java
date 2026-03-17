@@ -11,6 +11,6 @@ public class TestController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "last manual docker deployment test-3 with jenkins in another ec2 machine";
+        return "last manual docker deployment test-3 with jenkins in another ec2 machine -1";
     }
 }
