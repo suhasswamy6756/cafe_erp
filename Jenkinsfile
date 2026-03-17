@@ -67,8 +67,8 @@ pipeline {
                   executionRoleArn: .executionRoleArn,
                   networkMode: .networkMode,
                   requiresCompatibilities: .requiresCompatibilities,
-                  cpu: .cpu,
-                  memory: .memory
+                  cpu: (.cpu // tostring),
+                  memory: (.memory // tostring)
                 }')
 
                 echo $NEW_TASK_DEF > new-task-def.json
