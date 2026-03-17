@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = "eu-north-1"
         ECR_REPO = "523874365958.dkr.ecr.eu-north-1.amazonaws.com/cafe-erp-backend"
         CLUSTER = "cafe-erp-cluster-test"
-        SERVICE = "new-task-erp-java-backend-service"
+        SERVICE = "new-task-erp-java-backend-service-msa4ei96"
     }
 
     stages {
