@@ -1,6 +1,7 @@
 pipeline {
     agent any
 
+
     environment {
         AWS_REGION = "eu-north-1"
         ECR_REPO = "523874365958.dkr.ecr.eu-north-1.amazonaws.com/cafe-erp-backend"
