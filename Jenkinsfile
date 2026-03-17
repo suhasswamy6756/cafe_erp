@@ -74,15 +74,19 @@ pipeline {
 
                 echo "Registering new task definition revision..."
 
-                aws ecs register-task-definition \
-                  --cli-input-json file://new-task-def.json
+               TASK_DEF_ARN=$(aws ecs register-task-definition \
+                 --cli-input-json file://new-task-def.json \
+                 --query 'taskDefinition.taskDefinitionArn' \
+                 --output text)
+
+                 echo "new task definition ARN: $TASK_DEF_ARN"
 
                 echo "Updating ECS service..."
 
                 aws ecs update-service \
                   --cluster $CLUSTER \
                   --service $SERVICE \
-                  --force-new-deployment
+                  --task-definition $TASK_DEF_ARN
                 '''
             }
         }
