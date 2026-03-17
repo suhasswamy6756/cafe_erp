@@ -57,18 +57,17 @@ pipeline {
 
                 TASK_DEF=$(aws ecs describe-task-definition \
                   --task-definition $TASK_DEF_NAME \
-                  --query taskDefinition)
+                  --query taskDefinition \
+                  --output json)
 
                 echo "Updating image with new tag..."
 
-                NEW_TASK_DEF=$(echo $TASK_DEF | jq --arg IMAGE "$ECR_REPO:$IMAGE_TAG" '{
+                NEW_TASK_DEF=$(echo "$TASK_DEF" | jq --arg IMAGE "$ECR_REPO:$IMAGE_TAG" '{
                   family: .family,
                   containerDefinitions: (.containerDefinitions | map(.image = $IMAGE)),
                   executionRoleArn: .executionRoleArn,
                   networkMode: .networkMode,
-                  requiresCompatibilities: .requiresCompatibilities,
-                  cpu: (.cpu // tostring),
-                  memory: (.memory // tostring)
+                  requiresCompatibilities: .requiresCompatibilities
                 }')
 
                 echo $NEW_TASK_DEF > new-task-def.json
