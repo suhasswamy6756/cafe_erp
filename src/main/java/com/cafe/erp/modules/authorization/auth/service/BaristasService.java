@@ -46,7 +46,7 @@ public class BaristasService {
     // ------------------------------------------------------------------------
     // Fetch all baristas
     // ------------------------------------------------------------------------
-//    @Cacheable("baristas")
+    @Cacheable("baristas")
     @Transactional(readOnly = true)
     public List<BaristaResponseDTO> getAllBaristas() {
         List<Baristas> baristas = baristasRepository.findAllWithRoles();
