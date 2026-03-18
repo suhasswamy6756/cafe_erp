@@ -12,6 +12,7 @@ import com.cafe.erp.modules.authorization.auth.respository.BaristaTokenRepositor
 import com.cafe.erp.modules.authorization.roles.dto.RoleResponseDTO;
 import com.cafe.erp.modules.authorization.roles.entity.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,6 +46,7 @@ public class BaristasService {
     // ------------------------------------------------------------------------
     // Fetch all baristas
     // ------------------------------------------------------------------------
+    @Cacheable("baristas")
     @Transactional(readOnly = true)
     public List<BaristaResponseDTO> getAllBaristas() {
         List<Baristas> baristas = baristasRepository.findAllWithRoles();
