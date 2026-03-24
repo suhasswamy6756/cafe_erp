@@ -8,8 +8,7 @@ import com.cafe.erp.modules.catalogue.category.entity.Category;
 import com.cafe.erp.modules.catalogue.category.repository.CategoryRepository;
 import com.cafe.erp.modules.catalogue.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -58,8 +57,13 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
     }
 
+
+    @Cacheable(value = "categories")
     @Override
     public List<CategoryResponseDTO> getAllCategories() {
+
+        System.out.println("🔥 DB HIT - Fetching from database");
+
         return categoryRepository.findAllByIsDeletedFalse()
                 .stream()
                 .map(cat -> CategoryResponseDTO.builder()

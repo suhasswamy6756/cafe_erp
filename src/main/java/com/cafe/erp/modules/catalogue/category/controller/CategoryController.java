@@ -27,6 +27,7 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<CategoryResponseDTO>>> getAllCategories() {
+        System.out.println("🔥 DB HIT - Fetching from service");
         return ResponseEntity.ok(ApiResponse.success("Categories fetched successfully", categoryService.getAllCategories(), 200));
     }
 
